@@ -1,0 +1,6 @@
+framework module LinkWiFiConfig {
+  umbrella header "LinkWiFiConfig.h"
+
+  export *
+  module * { export * }
+}
