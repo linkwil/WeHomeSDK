@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CmdTestActivity">
+
+    <Button android:id="@+id/btn_exec_cmd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Execute command"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <EditText android:id="@+id/et_cmd_string"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="text"
+            android:hint="Please enter command string"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <TextView android:id="@+id/tv_cmd_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+</LinearLayout>

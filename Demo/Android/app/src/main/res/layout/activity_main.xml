@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Button android:id="@+id/btn_wifi_config"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Wi-Fi configuration"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <EditText android:id="@+id/et_device_uid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="text"
+            android:hint="Please enter device UID"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <EditText android:id="@+id/et_device_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="textPassword"
+            android:hint="Please enter access password"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1.0">
+        <Button android:id="@+id/btn_login"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Login"/>
+        <Button android:id="@+id/btn_logout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Logout"/>
+    </LinearLayout>
+
+    <Button android:id="@+id/btn_cmd_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Command test"/>
+
+    <FrameLayout android:id="@+id/layout_player_container"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:background="#212121">
+    </FrameLayout>
+</LinearLayout>

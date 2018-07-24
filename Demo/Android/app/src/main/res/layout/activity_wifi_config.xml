@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".WifiConfigActivity">
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <EditText android:id="@+id/et_wifi_ssid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="text"
+            android:hint="Wi-Fi ssid"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <EditText android:id="@+id/et_wifi_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="textPassword"
+            android:hint="Wi-Fi password"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <EditText android:id="@+id/et_dev_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:maxEms="64"
+            android:inputType="textPassword"
+            android:hint="Device password"
+            android:textSize="14sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <Button android:id="@+id/btn_start_wifi_config"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start"/>
+
+    <Button android:id="@+id/btn_stop_wifi_config"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop"/>
+</LinearLayout>
