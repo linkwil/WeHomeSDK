@@ -329,11 +329,5 @@ public final class EasyCamApi {
         } catch (UnsatisfiedLinkError ule) {
             Log.e(TAG, "Load libEasyCamSdk.so fail:"+ule.getMessage());
         }
-
-        try {
-            System.loadLibrary("sinvoice");
-        } catch (UnsatisfiedLinkError ule){
-            Log.e(TAG, "Load libsinvoice.so fail:"+ule.getMessage());
-        }
     }
 }
