@@ -21,10 +21,10 @@
 #include "JNIEnv.h"
 #include "ECLog.h"
 
-#include <pthread.h>
-#include <map>
-
 #ifdef _ANDROID
+
+#include <map>
+#include <pthread.h>
 
 static std::map<int, void* > sJNIEnvMap;
 static pthread_mutex_t mJNIEvnMutex;

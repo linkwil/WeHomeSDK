@@ -33,7 +33,9 @@
 #endif
 
 #ifndef _IOS
+#ifndef _WIN32
 #include <sys/prctl.h>
+#endif
 #endif
 
 #include "CEasyCamClient.h"
@@ -323,7 +325,9 @@ void* CEasyCamClient::lanConnectThread(void* param)
     CEasyCamClient* pThis = (CEasyCamClient* )param;
 
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"lanConnectThread");
+#endif
 #endif
 
     
@@ -475,7 +479,9 @@ void* CEasyCamClient::p2pConnectThread(void* param)
     
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"p2pConnectThread");
+#endif
 #endif
     
     //LOGD("Attach connect thread env, pid:%#X", pthread_self());
@@ -622,7 +628,9 @@ void* CEasyCamClient::relayConnectThread(void* param)
 
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"relayConnectThread");
+#endif
 #endif
     
     //LOGD("Attach connect thread env, pid:%#X", pthread_self());
@@ -767,7 +775,9 @@ void* CEasyCamClient::connectTimeThread(void* param)
 
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"connectTimeThread");
+#endif
 #endif
 
     
@@ -1505,7 +1515,9 @@ void* CEasyCamClient::broadcastThread(void* param)
 {
 
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"broadcastThread");
+#endif
 #endif
     CEasyCamClient* pThis = (CEasyCamClient* )param;
     pThis->mBroadcastThreadRun = true;
@@ -1614,12 +1626,12 @@ void CEasyCamClient::handleCmdLoginResp(char* data, int seq)
         isCharging = pItem->valueint;
     }
     
-    unsigned int isVolSetSupport = 0;
-    pItem = cJSON_GetObjectItem(pJson, "isVolSetSupport");
-    if( pItem != NULL )
-    {
-        isVolSetSupport = pItem->valueint;
-    }
+//    unsigned int isVolSetSupport = 0;
+//    pItem = cJSON_GetObjectItem(pJson, "isVolSetSupport");
+//    if( pItem != NULL )
+//    {
+//        isVolSetSupport = pItem->valueint;
+//    }
     
 
 	if( mInitInfo.lpLoginResult != NULL )
@@ -1828,7 +1840,9 @@ void* CEasyCamClient::cmdSendThread(void* param)
 	int ret = 0;
 
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"cmdSendThread");
+#endif
 #endif
 
 	LOGD("Enter cmdSendThread, fd:%d", pThis->mSockHandle);
@@ -1964,7 +1978,9 @@ void* CEasyCamClient::audioSendThread(void* param)
 
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"audioSendThread");
+#endif
 #endif
 
     int ret = 0;
@@ -2090,7 +2106,9 @@ void* CEasyCamClient::cmdRecvThread(void* param)
 	CEasyCamClient* pThis = (CEasyCamClient* )param;
 
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"cmdRecvThread");
+#endif
 #endif
 
 	char *cmdRecvBuf = new char[10240];
@@ -2221,7 +2239,9 @@ void* CEasyCamClient::avUdpRecvThread(void* param)
 {
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"avUdpRecvThread");
+#endif
 #endif
 
     CEasyCamClient* pThis = (CEasyCamClient* )param;
@@ -2311,7 +2331,9 @@ void* CEasyCamClient::avRecvThread(void* param)
 
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"avRecvThread");
+#endif
 #endif
 
 	char *cmdRecvBuf = new char[1024*1024];
@@ -2451,7 +2473,9 @@ void* CEasyCamClient::pbRecvThread(void* param)
 {
     
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"pbRecvThread");
+#endif
 #endif
 
     PlaybackThreadContextInfo* pContext = (PlaybackThreadContextInfo* )param;
@@ -2594,7 +2618,9 @@ void* CEasyCamClient::pbRecvThread(void* param)
 void* CEasyCamClient::fileDownloadRecvThread(void* param)
 {
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"fileDownloadRecvThread");
+#endif
 #endif
 
 
@@ -2741,7 +2767,9 @@ void* CEasyCamClient::PIRDataRecvThread(void* param)
 
 
 #ifndef _IOS
+#ifndef _WIN32
     prctl(PR_SET_NAME,"PIRDataRecvThread");
+#endif
 #endif
     
     char *cmdRecvBuf = new char[100*1024];

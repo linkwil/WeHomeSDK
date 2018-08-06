@@ -24,9 +24,9 @@
 
 #ifdef WIN32DLL
 #ifdef LINK_API_EXPORTS
-#define LINK_API_API __declspec(dllexport)
+#define LINK_API_API  //__declspec(dllexport)
 #else
-#define LINK_API_API __declspec(dllimport)
+#define LINK_API_API  //__declspec(dllimport)
 #endif
 #endif /* WIN32DLL */
 
@@ -127,15 +127,22 @@ typedef void(*OnlineQueryResultCallback)(int queryResult, const char* uid, int l
     LINK_API_API INT32 LINK_PktSend(INT32 SessionHandle, UCHAR Channel, CHAR *PktBuf, INT32 PktSize); //// Available after ver. 2.0.0
     LINK_API_API INT32 LINK_PktRecv(INT32 SessionHandle, UCHAR Channel, CHAR *PktBuf, INT32 *PktSize, UINT32 TimeOut_ms); //// Available after ver. 2.0.0
     
+    
+    LINK_API_API INT32 LINK_DPS_Initialize(const char* uidPrefix, UINT16 PortNo);
+    LINK_API_API INT32 LINK_DPS_DeInitialize();
+    LINK_API_API INT32 LINK_DPS_TokenAcquire(CHAR *TokenBuf, INT32 Size);
+    INT32 LINK_DPS_RecvNotify(const CHAR *Token, CHAR *NotifyContent, UINT16 *Size, INT32 TimeOut_ms);
+    LINK_API_API INT32 LINK_DPS_GetLastAliveTime(UINT32 *Time_Sec);
+
     LINK_API_API INT32 LINK_WakeUp_Query(
-                                         const char* devUid,
+                                         const CHAR* devUid,
                                          const int tryCount,
                                          const unsigned int timeout_ms,
                                          int *LastLogin1,
                                          int *LastLogin2,
                                          int *LastLogin3);
     
-    LINK_API_API INT32 LINK_Subscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
+    LINK_API_API INT32 LINK_Subscribe(const CHAR* uid, const CHAR* appName,   const CHAR* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_UnSubscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_ResetBadge(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
  

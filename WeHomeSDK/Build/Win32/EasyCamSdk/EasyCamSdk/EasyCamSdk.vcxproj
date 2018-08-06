@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{CF358C3C-AD33-451F-BEE0-928286ADCFE7}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>EasyCamSdk</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;EASYCAM_API_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32DLL;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ws2_32.lib;PPCS_API.lib;pthreadVSE1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\..\dep\lib\win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;EASYCAM_API_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32DLL;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\..\dep\lib\win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;PPCS_API.lib;pthreadVSE1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\adpcm.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\analog_agc.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\complex_bit_reverse.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\complex_fft.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\copy_set_operations.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\cross_correlation.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\digital_agc.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\division_operations.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\dot_product_with_scale.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\downsample_fast.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\energy.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\fft4g.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\get_scaling_square.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\min_max_operations.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\noise_suppression.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\noise_suppression_x.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core_c.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core_neon_offsets.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\ns_core.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\real_fft.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_48khz.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2_internal.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2_mips.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_fractional.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\ring_buffer.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\splitting_filter.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_init.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt_floor.c" />
+    <ClCompile Include="..\..\..\..\src\audio_process\vector_scaling_operations.c" />
+    <ClCompile Include="..\..\..\..\src\CEasyCamClient.cpp" />
+    <ClCompile Include="..\..\..\..\src\cJSON.c" />
+    <ClCompile Include="..\..\..\..\src\Discovery.cpp" />
+    <ClCompile Include="..\..\..\..\src\EasyCamSdk.cpp" />
+    <ClCompile Include="..\..\..\..\src\ECLog.cpp" />
+    <ClCompile Include="..\..\..\..\src\JNIEnv.cpp" />
+    <ClCompile Include="..\..\..\..\src\platform\platform.cpp" />
+    <ClCompile Include="..\..\..\..\src\YUV2RGB.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\dep\include\LINK_API.h" />
+    <ClInclude Include="..\..\..\..\dep\include\LINK_Error.h" />
+    <ClInclude Include="..\..\..\..\dep\include\LINK_Type.h" />
+    <ClInclude Include="..\..\..\..\dep\include\pthread\pthread.h" />
+    <ClInclude Include="..\..\..\..\dep\include\pthread\sched.h" />
+    <ClInclude Include="..\..\..\..\dep\include\pthread\semaphore.h" />
+    <ClInclude Include="..\..\..\..\include\EasyCamSdk.h" />
+    <ClInclude Include="..\..\..\..\src\adpcm.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\analog_agc.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\complex_fft_tables.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\cpu_features_wrapper.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\defines.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\digital_agc.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\fft4g.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\gain_control.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\noise_suppression.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\noise_suppression_x.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\nsx_core.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\nsx_defines.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\ns_core.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\real_fft.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\resample_by_2_internal.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\ring_buffer.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\signal_processing_library.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\spl_inl.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\typedefs.h" />
+    <ClInclude Include="..\..\..\..\src\audio_process\windows_private.h" />
+    <ClInclude Include="..\..\..\..\src\CEasyCamClient.h" />
+    <ClInclude Include="..\..\..\..\src\cJSON.h" />
+    <ClInclude Include="..\..\..\..\src\Discovery.h" />
+    <ClInclude Include="..\..\..\..\src\EasyCamMsg.h" />
+    <ClInclude Include="..\..\..\..\src\ECLog.h" />
+    <ClInclude Include="..\..\..\..\src\JNIEnv.h" />
+    <ClInclude Include="..\..\..\..\src\platform\platform.h" />
+    <ClInclude Include="..\..\..\..\src\YUV2RGB.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

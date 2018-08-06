@@ -31,7 +31,7 @@ export CPPFLAGS
 
 
 LDLIB_PATHS := -L$(TOP_DIR)/dep/lib/linux_x64
-LDLIBS := -lLINK_API -lPPCS_API -lNDT_API_PPCS64
+LDLIBS := -lLINK_API -lPPCS_API -lNDT_API_PPCS
 
 CreateDir        =   $(shell [ -d $1 ] || mkdir -p $1 || echo ":mkdir '$1' fail")
 RemoveDir        =   $(shell [ -d $1 ] && rm -rf $1 && echo -e "rmdir '$1'\t [ OK ]" || echo ":rm dir '$1' fail")

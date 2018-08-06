@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="dep">
+      <UniqueIdentifier>{b2c78659-474a-4542-8d82-780b03340bde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{ab8ef7f4-2c25-414f-88ce-bd0b2933c881}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{90d5920c-3c45-4173-af09-16cf07628a50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio_process">
+      <UniqueIdentifier>{f20e3c8e-7745-4da2-ba5a-fc4e89d297ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\platform">
+      <UniqueIdentifier>{e4469004-6f06-42f0-9f44-578648662d42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dep\include">
+      <UniqueIdentifier>{71a698c3-cc90-4165-b728-4222614a5f36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dep\include\pthread">
+      <UniqueIdentifier>{ffbeee68-352f-4ec0-be6a-4e0d808098a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{be0bd0e7-1cb8-4fe6-aab5-b9200cbb5d5e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\analog_agc.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\complex_bit_reverse.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\complex_fft.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\copy_set_operations.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\cross_correlation.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\digital_agc.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\division_operations.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\dot_product_with_scale.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\downsample_fast.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\energy.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\fft4g.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\get_scaling_square.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\min_max_operations.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\noise_suppression.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\noise_suppression_x.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\ns_core.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core_c.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\nsx_core_neon_offsets.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\real_fft.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_48khz.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2_internal.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_by_2_mips.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\resample_fractional.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\ring_buffer.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_init.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt_floor.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\splitting_filter.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\audio_process\vector_scaling_operations.c">
+      <Filter>src\audio_process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\platform\platform.cpp">
+      <Filter>src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\adpcm.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\CEasyCamClient.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\cJSON.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Discovery.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\EasyCamSdk.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\ECLog.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\JNIEnv.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\YUV2RGB.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\include\EasyCamSdk.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\analog_agc.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\complex_fft_tables.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\cpu_features_wrapper.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\defines.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\digital_agc.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\fft4g.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\gain_control.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\noise_suppression.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\noise_suppression_x.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\ns_core.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\nsx_core.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\nsx_defines.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\real_fft.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\resample_by_2_internal.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\ring_buffer.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\signal_processing_library.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\spl_inl.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\typedefs.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\audio_process\windows_private.h">
+      <Filter>src\audio_process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\platform\platform.h">
+      <Filter>src\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\adpcm.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\CEasyCamClient.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\cJSON.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Discovery.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\EasyCamMsg.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\ECLog.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\JNIEnv.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\YUV2RGB.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\pthread\pthread.h">
+      <Filter>dep\include\pthread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\pthread\sched.h">
+      <Filter>dep\include\pthread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\pthread\semaphore.h">
+      <Filter>dep\include\pthread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\LINK_API.h">
+      <Filter>dep\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\LINK_Error.h">
+      <Filter>dep\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\dep\include\LINK_Type.h">
+      <Filter>dep\include</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
