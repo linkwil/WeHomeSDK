@@ -159,7 +159,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="a" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SWA-Kr-f2S" userLabel="password Style Text Field">
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SWA-Kr-f2S" userLabel="password Style Text Field">
                                 <rect key="frame" x="101" y="185" width="254" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="ohH-in-NbA"/>
@@ -210,7 +210,7 @@
                                     <segue destination="6Xd-gd-SzH" kind="push" id="0aX-aD-nsX"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="LACS-002400-BBNWD" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="1YA-f7-LdM" userLabel="UID Text Field">
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="uid" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="1YA-f7-LdM" userLabel="UID Text Field">
                                 <rect key="frame" x="98" y="139" width="257" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="oCx-Au-izu"/>
