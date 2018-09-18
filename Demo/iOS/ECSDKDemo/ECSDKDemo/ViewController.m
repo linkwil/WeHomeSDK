@@ -15,6 +15,7 @@
 #import "LWLAudio.h"
 #import "LWLCodecSDK.h"
 #import "NSMutableArray+QueueStack.h"
+#import "LWLAudioCapture.h"
 
 typedef struct tagFrameHeadInfo
 {
@@ -63,12 +64,16 @@ void lpLoginResult(int handle, int errorCode, int seq, unsigned int notification
                                [gVC.loginBtn setEnabled:NO];
                                [gVC.logoutBtn setEnabled:YES];
                                [gVC.cmdBtn setEnabled:YES];
+                               [gVC.openTalkBtn setEnabled:YES];
+                               [gVC.closeTalkBtn setEnabled:YES];
                                
                                [gVC LWLAlertWithTitle:@"login success." message:@"" defaultActionTitle:@"OK" defaultActFunc:^(UIAlertAction *action) {
                                    //
                                } cancelActionTitle:nil cancelActFunc:^(UIAlertAction *action) {
                                    //
                                }];
+                               
+                               
                            }else
                            {
                                EC_Logout(gECSDKHandle); //must logout
@@ -108,6 +113,7 @@ void lpAudio_RecvData(int handle, char *data, int len, int payloadType, long lon
 {
 //    NSLog(@"lpAudio_RecvData enter");
 //    NSLog(@"lpAudio_RecvData, handle:%d, len:%d, payloadType:%d, timestamp:%lld, seq:%d", handle, len, payloadType, timestamp, seq);
+    
     
     FrameHeadInfo *pAudioFrame = (FrameHeadInfo*)liveAudioDataTempBuf;
     memset(pAudioFrame, 0, sizeof(FrameHeadInfo));
@@ -175,11 +181,46 @@ void lpPBEnd(int handle, int pbSessionNo)
     
 }
 
+void AudioQueueInputCallbackFunc(
+                                 void * __nullable               inUserData,
+                                 AudioQueueRef                   inAQ,
+                                 AudioQueueBufferRef             inBuffer,
+                                 const AudioTimeStamp *          inStartTime,
+                                 UInt32                          inNumberPacketDescriptions,
+                                 const AudioStreamPacketDescription * __nullable inPacketDescs)
+{
+
+//    NSLog(@"AudioQueueInputCallbackFunc enter");
+//    NSLog(@"inNumberPacketDescriptions:%d", inNumberPacketDescriptions);
+    
+    static char temp[1024*1024] = {0};
+    static int sumLen = 0;
+    
+    memcpy(temp+sumLen, (char *)inBuffer->mAudioData, inBuffer->mAudioDataByteSize);
+    
+    sumLen += inBuffer->mAudioDataByteSize;
+    
+    while (sumLen >= 640)
+    {
+        char sendData[1024] = {0};
+        memcpy(sendData, temp, 640);
+        gSeq++;
+        EC_SendTalkData(gECSDKHandle, sendData, 640, 0, gSeq);
+        sumLen -= 640;
+        memmove(temp, temp+640, sumLen);
+    }
+    
+    AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
+    return;
+}
+
 
 @interface ViewController ()
 {
     sendCmdViewController *_sendCmdVC;
     LWLAudio *_audioPlayer;
+    LWLAudioCapture *_audioCap;
+
 }
 
 @end
@@ -212,7 +253,8 @@ void lpPBEnd(int handle, int pbSessionNo)
     
     [_logoutBtn setEnabled:NO];
     [_cmdBtn setEnabled:NO];
-    
+    [_openTalkBtn setEnabled:NO];
+    [_closeTalkBtn setEnabled:NO];
     
     _audioPlayer = [[LWLAudio alloc] init];
     LWLH264DecoderInit(COLOR_FORMAT_RGB24);
@@ -340,11 +382,13 @@ void lpPBEnd(int handle, int pbSessionNo)
     
     gSeq++;
     gECSDKHandle = EC_Login([[_uidTextField text] UTF8String], [usrNameStr  UTF8String], [[_passwordTextField text] UTF8String], [broadcastAddr UTF8String] , gSeq, 1, 1, (CONNECT_TYPE_LAN | CONNECT_TYPE_P2P | CONNECT_TYPE_RELAY), 10);
+    
+    [_audioPlayer lwlStartPlay];
 }
 
 - (IBAction)logoutBtnFunc:(id)sender
 {
-    
+    [self closeTalkBtnFunc:nil];
     
     EC_Logout(gECSDKHandle);
     [_cmdResultLabel setText:@""];
@@ -359,6 +403,10 @@ void lpPBEnd(int handle, int pbSessionNo)
     [_logoutBtn setEnabled:NO];
     [_cmdBtn setEnabled:NO];
     [_loginBtn setEnabled:YES];
+    [_openTalkBtn setEnabled:NO];
+    [_closeTalkBtn setEnabled:NO];
+    
+    [_audioPlayer lwlStopPlay];
     
 }
 - (IBAction)sendCmdFunc:(id)sender
@@ -368,6 +416,37 @@ void lpPBEnd(int handle, int pbSessionNo)
     gSeq++;
     [_sendCmdVC setHandle:gECSDKHandle seq:gSeq];
     [self.navigationController pushViewController:_sendCmdVC animated:YES];
+}
+- (IBAction)openTalkBtnFunc:(id)sender
+{
+    cJSON * pJsonRoot = NULL;
+    char* jsonStr = NULL;
+    pJsonRoot = cJSON_CreateObject();
+    cJSON_AddNumberToObject(pJsonRoot, "cmdId", EC_SDK_CMD_ID_OPEN_TALK);
+    jsonStr = cJSON_Print(pJsonRoot);
+    cJSON_Minify(jsonStr);
+    gSeq++;
+    EC_SendCommand(gECSDKHandle, jsonStr, gSeq);
+    
+    _audioCap = [[LWLAudioCapture alloc]  init];
+    [_audioCap LWLAC_SetFormat:nil callback:AudioQueueInputCallbackFunc callbackSelf:self];
+    [_audioCap LWLAC_StartCap];
+
+}
+
+- (IBAction)closeTalkBtnFunc:(id)sender
+{
+    cJSON * pJsonRoot = NULL;
+    char* jsonStr = NULL;
+    pJsonRoot = cJSON_CreateObject();
+    cJSON_AddNumberToObject(pJsonRoot, "cmdId", EC_SDK_CMD_ID_CLOSE_TALK);
+    jsonStr = cJSON_Print(pJsonRoot);
+    cJSON_Minify(jsonStr);
+    gSeq++;
+    EC_SendCommand(gECSDKHandle, jsonStr, gSeq);
+    
+    [_audioCap LWLAC_StopCap];
+    
 }
 
 - (void)setCmdResult:(NSString *)cmdResult

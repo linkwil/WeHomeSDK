@@ -17,6 +17,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *cmdResultLabel;
 @property (weak, nonatomic) IBOutlet UIButton *cmdBtn;
 @property (weak, nonatomic) IBOutlet UIImageView *videoShowImageView;
+@property (weak, nonatomic) IBOutlet UIButton *openTalkBtn;
+@property (weak, nonatomic) IBOutlet UIButton *closeTalkBtn;
 
 
 -(void)LWLAlertWithTitle:(NSString *)title message:(NSString *)msg defaultActionTitle:(NSString*)defaultActTitle defaultActFunc:(void (^) (UIAlertAction *action))defaultFunc cancelActionTitle:(NSString*)cancelActTitle cancelActFunc:(void (^) (UIAlertAction *action))cancelFunc;

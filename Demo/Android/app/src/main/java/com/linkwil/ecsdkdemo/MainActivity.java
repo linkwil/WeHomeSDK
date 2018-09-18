@@ -1,6 +1,9 @@
 package com.linkwil.ecsdkdemo;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -23,12 +26,14 @@ import android.widget.Toast;
 
 import com.linkwil.easycamsdk.EasyCamApi;
 import com.linkwil.linkbell.sdk.decoder.H264Decoder;
+import com.linkwil.service.DemoService;
 import com.linkwil.util.ECAudioFrameQueue;
 import com.linkwil.util.ECVideoFrameQueue;
 import com.linkwil.util.StreamView;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnLogIn;
     private Button mBtnLogout;
     private Button mBtnCmdTest;
+    private Button mBtnDpsSubsribe;
     private FrameLayout mStreamViewerContainer;
     private StreamView mStreamViewer;
 
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final int MSG_ID_LOGIN_FAIL = 0;
     private final int MSG_ID_LOGIN_SUCCESS = 1;
+    private final int MSG_ID_SUBSCRIBE_MSG_SUCCESS = 2;
+    private final int MSG_ID_SUBSCRIBE_MSG_FAIL = 3;
 
     private EasyCamApi.LoginResultCallback mLoginResultCallback;
 
@@ -67,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private VideoQueueProcess mVideoQueueProcess;
     private IECAudioFrameQueue mAudioFrameQueue = new IECAudioFrameQueue(LIVE_AUDIO_FRAME_BUF_SIZE);
     private AudioQueueProcess mAudioQueueProcess;
+
+    private int mNotificationEventChannel = -1;
 
     private int bufSize = AudioTrack.getMinBufferSize(16000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
     private AudioTrack mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 16000, AudioFormat.CHANNEL_OUT_MONO,
@@ -119,6 +129,13 @@ public class MainActivity extends AppCompatActivity {
 
                 mBtnLogout.setEnabled(true);
                 mBtnCmdTest.setEnabled(true);
+                mBtnDpsSubsribe.setEnabled(true);
+            }else if( msg.what == MSG_ID_SUBSCRIBE_MSG_SUCCESS ){
+                mConnectingDlg.dismiss();
+                Toast.makeText(this, "Notification subscribed successfully", Toast.LENGTH_SHORT).show();
+            }else if( msg.what == MSG_ID_SUBSCRIBE_MSG_FAIL ){
+                mConnectingDlg.dismiss();
+                Toast.makeText(this, "Notification subscribed failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -134,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         mBtnLogIn = findViewById(R.id.btn_login);
         mBtnLogout = findViewById(R.id.btn_logout);
         mBtnCmdTest = findViewById(R.id.btn_cmd_test);
+        mBtnDpsSubsribe = findViewById(R.id.btn_dps_subscribe);
         mStreamViewerContainer = findViewById(R.id.layout_player_container);
 
         mConnectingDlg = new ProgressDialog(this);
@@ -142,9 +160,11 @@ public class MainActivity extends AppCompatActivity {
         mBtnLogIn.setOnClickListener(mOnClickListener);
         mBtnLogout.setOnClickListener(mOnClickListener);
         mBtnCmdTest.setOnClickListener(mOnClickListener);
+        mBtnDpsSubsribe.setOnClickListener(mOnClickListener);
 
         mBtnLogout.setEnabled(false);
         mBtnCmdTest.setEnabled(false);
+        mBtnDpsSubsribe.setEnabled(false);
 
         mH264Decoder = new H264Decoder(H264Decoder.COLOR_FORMAT_BGR32);
         mH264ByteBuffer = ByteBuffer.allocateDirect(MAX_VIDEO_FRAME_SIZE);
@@ -164,14 +184,12 @@ public class MainActivity extends AppCompatActivity {
         mEditUid.setTransformationMethod(new ReplacementTransformationMethod() {
             @Override
             protected char[] getOriginal() {
-                char ori[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-                return ori;
+                return new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
             }
 
             @Override
             protected char[] getReplacement() {
-                char replace[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-                return replace;
+                return new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
             }
         });
 
@@ -203,7 +221,38 @@ public class MainActivity extends AppCompatActivity {
         mVideoQueueProcess.start();
         mAudioQueueProcess = new AudioQueueProcess("LIVE_AUDIO");
         mAudioQueueProcess.start();
+
+
+        /// Start service
+        String serviceName = "com.linkwil.service.LinkBellService";
+        //Log.d("LinkBell", "ServiceName:"+serviceName);
+        if( !isServiceWork(this, serviceName) ) {
+            Log.d("LinkBell", "Start service");
+            Intent service = new Intent(this, DemoService.class);
+            startService(service);
+        }
     }
+
+    private boolean isServiceWork(Context context, String serviceName) {
+        boolean isWork = false;
+        ActivityManager myAM = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        if( myAM != null ) {
+            List<ActivityManager.RunningServiceInfo> myList = myAM.getRunningServices(256);
+            if (myList.size() <= 0) {
+                return false;
+            }
+            for (int i = 0; i < myList.size(); i++) {
+                String mName = myList.get(i).service.getClassName();
+                if (mName.equals(serviceName)) {
+                    isWork = true;
+                    break;
+                }
+            }
+        }
+        return isWork;
+    }
+
 
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
@@ -242,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
                                 logInFailMsg.arg1 = errorCode;
                                 mHandler.sendMessage(logInFailMsg);
                             }else{
+                                mNotificationEventChannel = notificationToken;
                                 mHandler.sendEmptyMessage(MSG_ID_LOGIN_SUCCESS);
                             }
                         }
@@ -265,6 +315,45 @@ public class MainActivity extends AppCompatActivity {
                     cmdTestIntent.putExtra("HANDLE", mSessionHandle);
                     startActivity(cmdTestIntent);
                 }
+            }else if( v == mBtnDpsSubsribe ){
+                final String uid = mEditUid.getText().toString().trim().toUpperCase();
+                String password = mEditPassword.getText().toString().trim();
+                if( (uid.length()!=17) ){
+                    Toast.makeText(MainActivity.this, "UID format error", Toast.LENGTH_SHORT).show();
+                    return;
+                }else if( password.length() == 0 ){
+                    Toast.makeText(MainActivity.this, "Access password can't be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if( mNotificationEventChannel == -1 ){
+                    Toast.makeText(MainActivity.this, "Please login to the device fistly", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                SharedPreferences sharedPreferences = getSharedPreferences("DPS_INFO", Activity.MODE_PRIVATE);
+                final String DPS_token = sharedPreferences.getString("DPS_TOKEN", "");
+                if( DPS_token.equals("") ){
+                    Toast.makeText(MainActivity.this, "Please make sure your phone can connect to internet", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                mConnectingDlg.setMessage("Subscribing message...");
+                mConnectingDlg.setCancelable(false);
+                mConnectingDlg.setCanceledOnTouchOutside(false);
+                mConnectingDlg.show();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int ret = EasyCamApi.getInstance().subscribeMessage(uid, "WeHome", "DPS", DPS_token, mNotificationEventChannel);
+                        if( ret == 0 ){
+                            mHandler.sendEmptyMessage(MSG_ID_SUBSCRIBE_MSG_SUCCESS);
+                        }else{
+                            mHandler.sendEmptyMessage(MSG_ID_SUBSCRIBE_MSG_FAIL);
+                        }
+                    }
+                }).start();
             }
         }
     };

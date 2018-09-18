@@ -67,6 +67,11 @@
         android:layout_height="wrap_content"
         android:text="Command test"/>
 
+    <Button android:id="@+id/btn_dps_subscribe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DPS subscribe"/>
+
     <FrameLayout android:id="@+id/layout_player_container"
         android:layout_width="match_parent"
         android:layout_height="240dp"

@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Created by xiao on 2017/3/10.
  */
 
+@SuppressWarnings("JniMissingFunction")
 public final class EasyCamApi {
     private final static String TAG = "EC_SDK";
 

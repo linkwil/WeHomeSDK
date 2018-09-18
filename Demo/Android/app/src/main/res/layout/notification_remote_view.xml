@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:baselineAligned="false"
+    android:layout_height="fill_parent"
+	android:layout_width="wrap_content"
+	android:background="#FFF"
+	android:gravity="center_vertical">
+
+	<ImageView
+		android:layout_width="42dip"
+		android:layout_height="42dip"
+		android:src="@mipmap/ic_launcher"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingTop="5dp"
+		android:paddingBottom="5dp">
+		<TextView  android:id="@+id/tv_notification_remoteview_title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:layout_marginStart="5dp"
+			style="@android:style/TextAppearance.Material.Notification.Title"/>
+
+		<TextView  android:id="@+id/tv_notification_remoteview_content"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:layout_marginStart="5dp"
+			style="@android:style/TextAppearance.Material.Notification"/>
+	</LinearLayout>
+
+
+</LinearLayout>

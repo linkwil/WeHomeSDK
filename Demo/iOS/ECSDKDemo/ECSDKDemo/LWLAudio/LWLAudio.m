@@ -58,11 +58,11 @@
             osState = AudioQueueAllocateBuffer(_audioQueue, LWL_MIN_SIZE_PER_FRAME, &_audioBuffer[i]);
         }
         
-        osState = AudioQueueStart(_audioQueue, NULL);
-        if (osState != noErr)
-        {
-            NSLog(@"AudioQueueStart Error");
-        }
+//        osState = AudioQueueStart(_audioQueue, NULL);
+//        if (osState != noErr)
+//        {
+//            NSLog(@"AudioQueueStart Error");
+//        }
         
         
     }
@@ -107,6 +107,20 @@
     return;
 }
 
+- (void)lwlStartPlay
+{
+    if (_audioQueue != nil)
+    {
+        osState = AudioQueueStart(_audioQueue, NULL);
+        if (osState != noErr)
+        {
+            NSLog(@"lwlStartPlay, AudioQueueStart Error");
+        }
+
+    }
+    
+    return;
+}
 - (void)lwlStopPlay
 {
     if (_audioQueue != nil)
@@ -148,7 +162,7 @@ static void AudioPlayerAQInputCallback(void* inUserData, AudioQueueRef audioQueu
 {
     NSError *error = nil;
 
-    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryMultiRoute error:&error];
+    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
     if (!ret)
     {
         NSLog(@"setCategory failed!");

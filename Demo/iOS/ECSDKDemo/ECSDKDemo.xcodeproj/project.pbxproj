@@ -17,6 +17,7 @@
 		1128CA7520A990620078E181 /* ECSDKDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1128CA7420A990620078E181 /* ECSDKDemoTests.m */; };
 		1128CA8020A990620078E181 /* ECSDKDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1128CA7F20A990620078E181 /* ECSDKDemoUITests.m */; };
 		1128CA8F20A9909C0078E181 /* ECSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1128CA8E20A9909B0078E181 /* ECSDK.framework */; };
+		113570E22150A03A007D7884 /* LWLAudioCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 113570E12150A03A007D7884 /* LWLAudioCapture.m */; };
 		116BF58E21071432009C3334 /* LWLCodecSDK.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 116BF51721071431009C3334 /* LWLCodecSDK.cpp */; };
 		116BF59621071432009C3334 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 116BF58121071432009C3334 /* libavutil.a */; };
 		116BF59721071432009C3334 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 116BF58221071432009C3334 /* libavfilter.a */; };
@@ -85,6 +86,8 @@
 		1128CA7F20A990620078E181 /* ECSDKDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ECSDKDemoUITests.m; sourceTree = "<group>"; };
 		1128CA8120A990620078E181 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1128CA8E20A9909B0078E181 /* ECSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ECSDK.framework; sourceTree = "<group>"; };
+		113570E02150A03A007D7884 /* LWLAudioCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LWLAudioCapture.h; sourceTree = "<group>"; };
+		113570E12150A03A007D7884 /* LWLAudioCapture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LWLAudioCapture.m; sourceTree = "<group>"; };
 		116BF51721071431009C3334 /* LWLCodecSDK.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LWLCodecSDK.cpp; sourceTree = "<group>"; };
 		116BF51B21071431009C3334 /* avcodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = avcodec.h; sourceTree = "<group>"; };
 		116BF51C21071431009C3334 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
@@ -267,6 +270,7 @@
 		1128CA5A20A990600078E181 /* ECSDKDemo */ = {
 			isa = PBXGroup;
 			children = (
+				113570DF2150A03A007D7884 /* LWLAudioCapture */,
 				116BF5A32107241D009C3334 /* LEOQueueStack */,
 				110114372106FE2D005C3E52 /* LWLAudio */,
 				110114382106FE2D005C3E52 /* LWLVideo */,
@@ -315,6 +319,15 @@
 				1128CA8E20A9909B0078E181 /* ECSDK.framework */,
 			);
 			path = ECSDK;
+			sourceTree = "<group>";
+		};
+		113570DF2150A03A007D7884 /* LWLAudioCapture */ = {
+			isa = PBXGroup;
+			children = (
+				113570E02150A03A007D7884 /* LWLAudioCapture.h */,
+				113570E12150A03A007D7884 /* LWLAudioCapture.m */,
+			);
+			path = LWLAudioCapture;
 			sourceTree = "<group>";
 		};
 		116BF51521071431009C3334 /* FFMpeg */ = {
@@ -656,6 +669,7 @@
 				1128CA6B20A990620078E181 /* main.m in Sources */,
 				1128CA5D20A990600078E181 /* AppDelegate.m in Sources */,
 				119061452105DD5400B254A7 /* wifiConfigViewController.m in Sources */,
+				113570E22150A03A007D7884 /* LWLAudioCapture.m in Sources */,
 				1190614C2105E5F100B254A7 /* sendCmdViewController.m in Sources */,
 				116BF58E21071432009C3334 /* LWLCodecSDK.cpp in Sources */,
 			);

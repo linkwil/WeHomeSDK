@@ -22,7 +22,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".WifiConfigActivity" />
-        <activity android:name=".CmdTestActivity"></activity>
+        <activity android:name=".CmdTestActivity"/>
+
+        <service android:name="com.linkwil.service.DemoService" />
+        <receiver android:name="com.linkwil.service.Alarm_Receiver"/>
     </application>
 
 </manifest>

@@ -12,6 +12,7 @@
 
 - (id)init;
 - (void)lwlPlayWithAudioData:(NSData*)audioData;
+- (void)lwlStartPlay;
 - (void)lwlStopPlay;
 - (void)lwlResetPlay;
 
