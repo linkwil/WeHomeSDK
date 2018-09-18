@@ -1,17 +1,24 @@
 package com.linkwil.ecsdkdemo;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ReplacementTransformationMethod;
@@ -21,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -31,14 +39,22 @@ import com.linkwil.util.ECAudioFrameQueue;
 import com.linkwil.util.ECVideoFrameQueue;
 import com.linkwil.util.StreamView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.os.Build.VERSION_CODES.M;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int LIVE_VIDEO_FRAME_BUF_SIZE = 60;
     private final int LIVE_AUDIO_FRAME_BUF_SIZE = 255;
+
+    private final int REQUEST_CODE_AUDIO_PERMISSION = 0x100;
 
     private Button mBtnWiFiConfig;
     private EditText mEditUid;
@@ -47,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnLogout;
     private Button mBtnCmdTest;
     private Button mBtnDpsSubsribe;
+    private Button mBtnTalk;
     private FrameLayout mStreamViewerContainer;
     private StreamView mStreamViewer;
 
@@ -59,11 +76,16 @@ public class MainActivity extends AppCompatActivity {
 
     private int mLoginSeq = 0;
     private int mSessionHandle = -1;
+    private int mCmdSeqNo = 0;
 
     private final int MSG_ID_LOGIN_FAIL = 0;
     private final int MSG_ID_LOGIN_SUCCESS = 1;
     private final int MSG_ID_SUBSCRIBE_MSG_SUCCESS = 2;
     private final int MSG_ID_SUBSCRIBE_MSG_FAIL = 3;
+    private final int MSG_ID_START_TALK_SUCCESS = 4;
+    private final int MSG_ID_START_TALK_OCCUPIED = 5;
+    private final int MSG_ID_START_TALK_FAILED = 6;
+    private final int MSG_ID_CLOSE_TALK_SUCCESS = 7;
 
     private EasyCamApi.LoginResultCallback mLoginResultCallback;
 
@@ -81,6 +103,13 @@ public class MainActivity extends AppCompatActivity {
     private int bufSize = AudioTrack.getMinBufferSize(16000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
     private AudioTrack mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 16000, AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_16BIT, bufSize*2, AudioTrack.MODE_STREAM);
+
+    private AudioRecord mRecorder;
+    private  int mAudioBufSize;
+    private Thread mAudioRecordThread;
+    private boolean mIsAudioThreadRun;
+
+    private boolean isToCmdTestActivity = false;
 
     private static class MyHandler extends Handler{
         private WeakReference<MainActivity> reference;
@@ -104,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
 
                 mBtnLogout.setEnabled(false);
                 mBtnCmdTest.setEnabled(false);
+                mBtnDpsSubsribe.setEnabled(false);
+                mBtnTalk.setEnabled(false);
 
                 EasyCamApi.getInstance().logOut(mSessionHandle);
 
@@ -127,15 +158,35 @@ public class MainActivity extends AppCompatActivity {
             }else if( msg.what == MSG_ID_LOGIN_SUCCESS ){
                 mConnectingDlg.dismiss();
 
+                mBtnLogIn.setEnabled(false);
                 mBtnLogout.setEnabled(true);
                 mBtnCmdTest.setEnabled(true);
                 mBtnDpsSubsribe.setEnabled(true);
+                mBtnTalk.setEnabled(true);
             }else if( msg.what == MSG_ID_SUBSCRIBE_MSG_SUCCESS ){
                 mConnectingDlg.dismiss();
                 Toast.makeText(this, "Notification subscribed successfully", Toast.LENGTH_SHORT).show();
             }else if( msg.what == MSG_ID_SUBSCRIBE_MSG_FAIL ){
                 mConnectingDlg.dismiss();
                 Toast.makeText(this, "Notification subscribed failed", Toast.LENGTH_SHORT).show();
+            }else if( msg.what == MSG_ID_START_TALK_SUCCESS ){
+                mConnectingDlg.dismiss();
+                // Start audio record thread
+                mIsAudioThreadRun = true;
+                mAudioRecordThread = new Thread(RecordAudioRunnable);
+                mAudioRecordThread.start();
+                Toast.makeText(this, "Start talk success", Toast.LENGTH_SHORT).show();
+            }else if( msg.what == MSG_ID_START_TALK_OCCUPIED ){
+                mConnectingDlg.dismiss();
+                mBtnTalk.setSelected(false);
+                Toast.makeText(this, "Occupied by another user", Toast.LENGTH_SHORT).show();
+            }else if( msg.what == MSG_ID_START_TALK_FAILED ){
+                mConnectingDlg.dismiss();
+                mBtnTalk.setSelected(false);
+                Toast.makeText(this, "Start/stop talk failed", Toast.LENGTH_SHORT).show();
+            }else if( msg.what == MSG_ID_CLOSE_TALK_SUCCESS ){
+                mConnectingDlg.dismiss();
+                Toast.makeText(this, "Stop talk success", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -152,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         mBtnLogout = findViewById(R.id.btn_logout);
         mBtnCmdTest = findViewById(R.id.btn_cmd_test);
         mBtnDpsSubsribe = findViewById(R.id.btn_dps_subscribe);
+        mBtnTalk = findViewById(R.id.btn_talk);
         mStreamViewerContainer = findViewById(R.id.layout_player_container);
 
         mConnectingDlg = new ProgressDialog(this);
@@ -161,10 +213,12 @@ public class MainActivity extends AppCompatActivity {
         mBtnLogout.setOnClickListener(mOnClickListener);
         mBtnCmdTest.setOnClickListener(mOnClickListener);
         mBtnDpsSubsribe.setOnClickListener(mOnClickListener);
+        mBtnTalk.setOnClickListener(mOnClickListener);
 
         mBtnLogout.setEnabled(false);
         mBtnCmdTest.setEnabled(false);
         mBtnDpsSubsribe.setEnabled(false);
+        mBtnTalk.setEnabled(false);
 
         mH264Decoder = new H264Decoder(H264Decoder.COLOR_FORMAT_BGR32);
         mH264ByteBuffer = ByteBuffer.allocateDirect(MAX_VIDEO_FRAME_SIZE);
@@ -308,9 +362,16 @@ public class MainActivity extends AppCompatActivity {
                     if( mLoginResultCallback != null ){
                         EasyCamApi.getInstance().removeLogInResultCallback(mLoginResultCallback);
                     }
+
+                    mBtnLogIn.setEnabled(true);
+                    mBtnLogout.setEnabled(false);
+                    mBtnCmdTest.setEnabled(false);
+                    mBtnDpsSubsribe.setEnabled(false);
+                    mBtnTalk.setEnabled(false);
                 }
             }else if( v == mBtnCmdTest ){
                 if( mSessionHandle >= 0 ){
+                    isToCmdTestActivity = true;
                     Intent cmdTestIntent = new Intent(MainActivity.this, CmdTestActivity.class);
                     cmdTestIntent.putExtra("HANDLE", mSessionHandle);
                     startActivity(cmdTestIntent);
@@ -354,9 +415,75 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }).start();
+            }else if( v == mBtnTalk ){
+                if( !hasPermissions() ){
+                    requestPermissions();
+                }else{
+                    // Start / Stop talk
+                    if (!v.isSelected()) {
+                        v.setSelected(true);
+                        onTalkEnabled(true);
+                    } else {
+                        v.setSelected(false);
+                        onTalkEnabled(false);
+                    }
+                }
             }
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull  String[] permissions, @NonNull  int[] grantResults) {
+        if (requestCode == REQUEST_CODE_AUDIO_PERMISSION) {
+            int granted = PackageManager.PERMISSION_GRANTED;
+            for (int r : grantResults) {
+                granted |= r;
+            }
+            if (granted == PackageManager.PERMISSION_GRANTED) {
+                if (!mBtnTalk.isSelected()) {
+                    mBtnTalk.setSelected(true);
+                    onTalkEnabled(true);
+                } else {
+                    mBtnTalk.setSelected(false);
+                    onTalkEnabled(false);
+                }
+            }
+        }
+    }
+
+    @TargetApi(M)
+    private void requestPermissions() {
+        final String[] permissions = new String[]{ RECORD_AUDIO};
+
+        boolean showRationale = false;
+        for (String perm : permissions) {
+            showRationale |= shouldShowRequestPermissionRationale(perm);
+        }
+        if (!showRationale) {
+            requestPermissions(permissions, REQUEST_CODE_AUDIO_PERMISSION);
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setMessage("Need permission to record audio")
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        requestPermissions(permissions, REQUEST_CODE_AUDIO_PERMISSION);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
+    }
+
+    private boolean hasPermissions() {
+        PackageManager pm = getPackageManager();
+        String packageName = getPackageName();
+        int granted = pm.checkPermission(RECORD_AUDIO, packageName);
+        return granted == PackageManager.PERMISSION_GRANTED;
+    }
 
     @Override
     protected void onPause() {
@@ -372,6 +499,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        isToCmdTestActivity = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if( !isToCmdTestActivity ){
+            EasyCamApi.getInstance().logOut(mSessionHandle);
+            mBtnLogIn.setEnabled(true);
+            mBtnLogout.setEnabled(false);
+            mBtnCmdTest.setEnabled(false);
+            mBtnDpsSubsribe.setEnabled(false);
+            mBtnTalk.setEnabled(false);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
@@ -379,6 +525,80 @@ public class MainActivity extends AppCompatActivity {
             mAudioTrack.stop();
             mAudioTrack.release();
         }
+    }
+
+    private EasyCamApi.CommandResultCallback mCommandResultCallback;
+
+    protected void onTalkEnabled(boolean enabled) {
+
+        if( enabled){
+            mConnectingDlg.setMessage("Opening talk...");
+        }else{
+            mConnectingDlg.setMessage("Closing talk...");
+
+            // Stop audio thread
+            mIsAudioThreadRun = false;
+            if( mAudioRecordThread != null ){
+                try {
+                    mAudioRecordThread.join();
+                    mAudioRecordThread = null;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        mConnectingDlg.setCancelable(false);
+        mConnectingDlg.setCanceledOnTouchOutside(false);
+        mConnectingDlg.show();
+
+        String cmdString;
+        if( enabled ){
+            cmdString = "{\"cmdId\":256}";
+        }else{
+            cmdString = "{\"cmdId\":257}";
+        }
+
+        if( mCommandResultCallback != null ){
+            EasyCamApi.getInstance().removeCommandResultCallback(mCommandResultCallback);
+        }
+        EasyCamApi.getInstance().addCommandResultCallback(mCommandResultCallback=new EasyCamApi.CommandResultCallback() {
+            @Override
+            public void onCommandResult(int handle, int errCode, String data, int seq) {
+                if( errCode == 0 ){
+                    // Parse result(openTalkResult)
+                    try {
+                        JSONObject jsonObject = new JSONObject(data);
+                        int cmdId = jsonObject.getInt("cmdId");
+                        if( cmdId == 256 ) {
+                            if (jsonObject.has("openTalkResult")) {
+                                int openTalkResult = jsonObject.getInt("openTalkResult");
+                                if (openTalkResult == 1) {
+                                    mHandler.sendEmptyMessage(MSG_ID_START_TALK_SUCCESS);
+                                } else {
+                                    mHandler.sendEmptyMessage(MSG_ID_START_TALK_OCCUPIED);
+                                }
+                            } else {
+                                // For some old firmware version which doesn't support openTalkResult field.
+                                mHandler.sendEmptyMessage(MSG_ID_START_TALK_SUCCESS);
+                            }
+                        }else{
+                            mHandler.sendEmptyMessage(MSG_ID_CLOSE_TALK_SUCCESS);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    Message cmdExecErrMsg = new Message();
+                    cmdExecErrMsg.what = MSG_ID_START_TALK_FAILED;
+                    cmdExecErrMsg.arg1 = errCode;
+                    mHandler.sendMessage(cmdExecErrMsg);
+                }
+            }
+        }, mCmdSeqNo);
+        EasyCamApi.getInstance().sendCommand(mSessionHandle, cmdString, cmdString.length()+1, mCmdSeqNo);
+
+        mCmdSeqNo++;
     }
 
     private class VideoQueueProcess extends Thread {
@@ -537,4 +757,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private Runnable RecordAudioRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+
+                mAudioBufSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+                mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, mAudioBufSize * 2);
+
+                int bytesRecord;
+                //int bufferSize = 320;
+                byte[] tempBuffer = new byte[640];
+
+                mRecorder.startRecording();
+
+                while (mIsAudioThreadRun) {
+                    if (null != mRecorder) {
+                        bytesRecord = mRecorder.read(tempBuffer, 0, tempBuffer.length);
+                        if (bytesRecord == AudioRecord.ERROR_INVALID_OPERATION || bytesRecord == AudioRecord.ERROR_BAD_VALUE) {
+                            continue;
+                        }
+                        if (bytesRecord != 0 && bytesRecord != -1) {
+                            // seq is not in using
+                            EasyCamApi.getInstance().sendTalkData(mSessionHandle, tempBuffer, bytesRecord, EasyCamApi.PayloadType.PAYLOAD_TYPE_AUDIO_PCM, 0);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (mRecorder != null) {
+                if (mRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                    mRecorder.stop();
+                }
+                if (mRecorder != null) {
+                    mRecorder.release();
+                }
+            }
+        }
+    };
 }

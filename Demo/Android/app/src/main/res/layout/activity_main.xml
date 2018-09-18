@@ -72,9 +72,18 @@
         android:layout_height="wrap_content"
         android:text="DPS subscribe"/>
 
-    <FrameLayout android:id="@+id/layout_player_container"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:background="#212121">
-    </FrameLayout>
+        android:layout_height="wrap_content">
+        <FrameLayout android:id="@+id/layout_player_container"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:background="#212121">
+        </FrameLayout>
+        <Button android:id="@+id/btn_talk"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/btn_talk_style"/>
+    </RelativeLayout>
 </LinearLayout>

@@ -311,6 +311,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback2 {
 				scale = viewWidth * 1.0f / bmpWidth;
 			}
 
+			mScaleMatrix.reset();
 			mScaleMatrix.postScale(scale, scale, 0, 0);
             mScaleMatrix.postTranslate((viewWidth-bmpWidth*scale)/2, (viewHeight-bmpHeight*scale)/2);
 		}

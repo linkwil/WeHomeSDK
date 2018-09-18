@@ -29,6 +29,8 @@ public class CmdTestActivity extends AppCompatActivity {
     private int mCmdSeqNo = 0;
     private String mCmdResultString;
 
+    private boolean mBackToPrevious = false;
+
     private EasyCamApi.CommandResultCallback mCommandResultCallback;
 
     private MyHandler mHandler = new MyHandler(this);
@@ -106,5 +108,28 @@ public class CmdTestActivity extends AppCompatActivity {
                 mCmdSeqNo++;
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mBackToPrevious = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mBackToPrevious = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if( !mBackToPrevious ){
+            EasyCamApi.getInstance().logOut(mSessionHandle);
+            finish();
+        }
     }
 }
