@@ -54,7 +54,15 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../src/ \
 		    $(LOCAL_PATH)/../../../dep/include/
 		    
 
-LOCAL_LDFLAGS := -L$(LOCAL_PATH)/../../../dep/lib/android \
+ifeq ($(TARGET_ARCH_ABI),armeabi)
+LOCAL_LDFLAGS := -L$(LOCAL_PATH)/../../../dep/lib/android/armeabi
+endif
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+LOCAL_LDFLAGS := -L$(LOCAL_PATH)/../../../dep/lib/android/armeabi-v7a
+endif
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+LOCAL_LDFLAGS := -L$(LOCAL_PATH)/../../../dep/lib/android/arm64-v8a
+endif
 
 LOCAL_CFLAGS := -Wall -fvisibility=hidden
 LOCAL_CFLAGS += -D_ANDROID -DLINUX -DWEBRTC_POSIX

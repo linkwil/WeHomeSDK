@@ -57,14 +57,7 @@
             _audioBufferIsUsed[i] = NO;
             osState = AudioQueueAllocateBuffer(_audioQueue, LWL_MIN_SIZE_PER_FRAME, &_audioBuffer[i]);
         }
-        
-//        osState = AudioQueueStart(_audioQueue, NULL);
-//        if (osState != noErr)
-//        {
-//            NSLog(@"AudioQueueStart Error");
-//        }
-        
-        
+
     }
     return self;
 }
@@ -161,8 +154,9 @@ static void AudioPlayerAQInputCallback(void* inUserData, AudioQueueRef audioQueu
 + (void)initialize
 {
     NSError *error = nil;
-
-    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+    
+    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:&error];
+    
     if (!ret)
     {
         NSLog(@"setCategory failed!");

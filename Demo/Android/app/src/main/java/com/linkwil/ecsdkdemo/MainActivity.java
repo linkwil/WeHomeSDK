@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -285,6 +284,8 @@ public class MainActivity extends AppCompatActivity {
             Intent service = new Intent(this, DemoService.class);
             startService(service);
         }
+
+        EasyCamApi.getInstance().getDevList();
     }
 
     private boolean isServiceWork(Context context, String serviceName) {
@@ -313,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             if(v==mBtnWiFiConfig){
                 String uid = mEditUid.getText().toString().trim().toUpperCase();
-                if( uid.length() != 17 ){
+                if( uid.length() < 17 ){
                     Toast.makeText(MainActivity.this, "UID format error", Toast.LENGTH_SHORT).show();
                 }else {
                     Intent wifiConfigIntent = new Intent(MainActivity.this, WifiConfigActivity.class);
@@ -323,9 +324,7 @@ public class MainActivity extends AppCompatActivity {
             }else if( v == mBtnLogIn ){
                 String uid = mEditUid.getText().toString().trim().toUpperCase();
                 String password = mEditPassword.getText().toString().trim();
-                if( (uid.length()!=17) ){
-                    Toast.makeText(MainActivity.this, "UID format error", Toast.LENGTH_SHORT).show();
-                }else if( password.length() == 0 ){
+                if( password.length() == 0 ){
                     Toast.makeText(MainActivity.this, "Access password can't be empty", Toast.LENGTH_SHORT).show();
                 }else {
                     // Show loading dialog

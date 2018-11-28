@@ -333,9 +333,9 @@ public final class EasyCamApi {
         }
 
         try {
-            System.loadLibrary("sinvoice");
+            System.loadLibrary("voiceRecog");
         } catch (UnsatisfiedLinkError ule){
-            Log.e(TAG, "Load libsinvoice.so fail:"+ule.getMessage());
+            Log.e(TAG, "Load libvoiceRecog.so fail:"+ule.getMessage());
         }
     }
 }

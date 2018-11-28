@@ -35,7 +35,8 @@
 
 - (IBAction)startWiFiConfigFunc:(id)sender
 {
-    int startRet = [LinkWiFiConfig startSmartConfig:_wifiSsidTextField.text password:_wifiPswTextField.text devPassword:_devPswTextField.text];
+    
+    int startRet = [LinkWiFiConfig startSmartConfigWithWifiSsid:_wifiSsidTextField.text wifiPassword:_wifiPswTextField.text devPassword:_devPswTextField.text];
     NSLog(@"startRet:%d", startRet);
     if (startRet == LINK_WIFI_CONFIG_RETURN_FALES)
     {

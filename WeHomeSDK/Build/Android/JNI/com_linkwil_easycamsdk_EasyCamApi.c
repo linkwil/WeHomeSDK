@@ -432,7 +432,7 @@ JNIEXPORT jint JNICALL Java_com_linkwil_easycamsdk_EasyCamApi_stopSearchDev
     return EC_StopDevSearch();
 }
 
-jobjectArray JNICALL Java_com_linkwil_easycamsdk_EasyCamApi_getDevList
+JNIEXPORT jobjectArray JNICALL Java_com_linkwil_easycamsdk_EasyCamApi_getDevList
    (JNIEnv * env, jobject thiz)
 {
     jobjectArray devList = NULL;

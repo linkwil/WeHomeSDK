@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ECSDKDemo/LWLAudio/LWLAudio.m"
-            timestampString = "558937200.989894"
+            timestampString = "565084880.759784"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
+            startingLineNumber = "93"
+            endingLineNumber = "93"
             landmarkName = "-lwlPlayWithAudioData:"
             landmarkType = "7">
          </BreakpointContent>
@@ -25,14 +25,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ECSDKDemo/LWLAudio/LWLAudio.m"
-            timestampString = "558937200.989966"
+            filePath = "ECSDKDemo/ViewController.m"
+            timestampString = "565086444.465595"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "86"
-            endingLineNumber = "86"
-            landmarkName = "-lwlPlayWithAudioData:"
-            landmarkType = "7">
+            startingLineNumber = "118"
+            endingLineNumber = "118"
+            landmarkName = "lpAudio_RecvData"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -41,14 +41,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ECSDKDemo/LWLAudio/LWLAudio.m"
-            timestampString = "558937200.990023"
+            filePath = "ECSDKDemo/ViewController.m"
+            timestampString = "565086444.465652"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "100"
-            endingLineNumber = "100"
-            landmarkName = "-lwlPlayWithAudioData:"
-            landmarkType = "7">
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "lpAudio_RecvData"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

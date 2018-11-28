@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <algorithm> //algorithm need to be included before PPCS_API.h
+#include <algorithm> //algorithm need to be included before LINK_API.h
 #include <map>
 #include <list>
 #include <string>
@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-//#include <PPCS_API.h>
 #include <LINK_API.h>
 
 #endif
@@ -310,10 +309,10 @@ int EC_Initialize(EC_INIT_INFO* init)
 
 	LINK_Initialize();
 
-	UINT32 apiVer = LINK_GetAPIVersion();
-	LOGD("PPCS_API Version: %d.%d.%d.%d",
-		(apiVer & 0xFF000000) >> 24, (apiVer & 0x00FF0000) >> 16,
-		(apiVer & 0x0000FF00) >> 8, (apiVer & 0x000000FF) >> 0);
+//	UINT32 apiVer = LINK_GetAPIVersion();
+//	LOGD("PPCS_API Version: %d.%d.%d.%d",
+//		(apiVer & 0xFF000000) >> 24, (apiVer & 0x00FF0000) >> 16,
+//		(apiVer & 0x0000FF00) >> 8, (apiVer & 0x000000FF) >> 0);
 
 	memset(&sECInitInfo, 0x00, sizeof(EC_INIT_INFO));
 	if (init != NULL)
@@ -388,7 +387,7 @@ void *WakeUp_Query_ThreadFunc(void *arg)
     
     int LastLoginNum = LINK_WakeUp_Query(pQueryTaskInfo->uid,
                                          3,
-                                         2000,
+                                         5000,
                                          &LastLogin[0],
                                          &LastLogin[1],
                                          &LastLogin[2]);
@@ -448,9 +447,9 @@ int EC_QueryOnlineStatus(const char* uid, OnlineQueryResultCallback callback)
         strcpy(queryTaskInfo.uid, uid);
         queryTaskInfo.resultCallback = callback;
         sWakeupQueryTaskTbl[uid] = queryTaskInfo;
-        pthread_create(&sWakeupQueryTaskTbl["uid"].queryThread, NULL,
+        pthread_create(&sWakeupQueryTaskTbl[uid].queryThread, NULL,
                        WakeUp_Query_ThreadFunc, &sWakeupQueryTaskTbl[uid]);
-        pthread_detach(sWakeupQueryTaskTbl["uid"].queryThread);
+        pthread_detach(sWakeupQueryTaskTbl[uid].queryThread);
         pthread_mutex_unlock(&sWakeupQueryTaskMutex);
         
         return 0;
@@ -486,7 +485,7 @@ int EC_Login(const char* uid, const char* usrName, const char* password, const c
 	init.lpPIRData_RecvData = EC_PIRData_RecvData;
 	session.pClient = new CEasyCamClient(&init, session.handle, uid);
 	session.refCnt = 1;
-
+    
 	pthread_mutex_lock(&sSessionMutex);
 	sSessionList.push_back(session);
 	session.pClient->logIn(uid, usrName, password, broadcastAddr, seq, needVideo, needAudio, connectType, (timeout - 1));

@@ -2,13 +2,14 @@
 //  LinkWiFiConfig.h
 //  LinkWiFiConfig
 //
-//  Created by linkwil on 2018/5/17.
-//  Copyright © 2018年 linkwil. All rights reserved.
+//  Created by LinkWil on 2018/11/17.
+//  Copyright © 2018年 xlink. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
-typedef enum TAG_LINK_WIFI_CONFIG_RETURN
+typedef enum TAG_LINK_CONFIG_NETWORK_RETURN
 {
     LINK_WIFI_CONFIG_RETURN_FALES = -1,
     LINK_WIFI_CONFIG_RETURN_OK = 0,
@@ -18,7 +19,6 @@ typedef enum TAG_LINK_WIFI_CONFIG_RETURN
 
 +(NSString *)getVersion;
 
-+(int)startSmartConfig:(NSString *)wifiSsid password:(NSString *)wifiPassword devPassword:(NSString *)devPassword;
++(int)startSmartConfigWithWifiSsid:(NSString *)wifiSsid wifiPassword:(NSString *)wifiPassword devPassword:(NSString *)devPassword;
 +(int)stopSmartConfig;
-
 @end

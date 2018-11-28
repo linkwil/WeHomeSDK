@@ -75,7 +75,7 @@ public class WifiConfigActivity extends AppCompatActivity {
                 }else if( devPassword.length() == 0 ){
                     Toast.makeText(WifiConfigActivity.this, "Device access password can't be empty", Toast.LENGTH_SHORT).show();
                 }else {
-                    LinkWiFiConfigApi.getInstance().startSmartConfig(WifiConfigActivity.this, wifiSsid, wifiPassword, devPassword);
+                    LinkWiFiConfigApi.getInstance().startSmartConfig(WifiConfigActivity.this, mUid, wifiSsid, wifiPassword, devPassword, false);
                     btnStopConfig.setEnabled(true);
                     btnStartConfig.setEnabled(false);
                 }
