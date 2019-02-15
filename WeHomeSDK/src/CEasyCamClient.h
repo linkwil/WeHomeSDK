@@ -44,7 +44,7 @@ enum CONNECTION_BROKEN_ISSUE
 typedef struct tagCLIENT_INIT_INFO
 {
 	void (*lpConnectionBroken)(int sessionHandle, int sockHandle, int issue);
-	void (*lpLoginResult)(int handle, int errorCode, int seq, unsigned int notificationToken, unsigned int isCharging, unsigned int batPercent);
+	void (*lpLoginResult)(int handle, int errorCode, int seq, unsigned int notificationToken, unsigned int isCharging, unsigned int batPercent, unsigned int supportEncryption);
 	void (*lpCmdResult)(int handle, char* data, int seq);
 	void (*lpAudio_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq);
 	void (*lpVideo_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, unsigned int wifiQuality);
@@ -83,10 +83,15 @@ public:
 
     unsigned int getToken();
     
+    int sendLoginCmd(int sessionHandle);
+
 public:
 	void joinThreads(void);
 	void closeConnection(void);
 
+public:
+    int mIsRsaLogin;
+    
 protected:
 	int addCmdToQueue(void* cmd);
 	void* getCmdFromQueue(void);
@@ -96,7 +101,6 @@ protected:
 	void* getTalkDataFromQueue(void);
 	void clearTalkDataQueue(void);
 
-	int sendLoginCmd(int sessionHandle);
 
 	void handleCmdLoginResp(char* data, int seq);
 	void handleCmdResp(char* data, int seq);
@@ -104,11 +108,9 @@ protected:
 	int handleMsg(int fd, char* data, int len);
 
 protected:
-#if 1
     static void* lanConnectThread(void* );
     static void* p2pConnectThread(void*);
     static void* relayConnectThread(void*);
-#endif
     
     static void* broadcastThread(void*);
     static void* connectTimeThread(void*);
@@ -124,7 +126,6 @@ protected:
 
 private:
     
-#if 1
     bool mIsConnecting;
     bool mLanIsConnecting;
     bool mP2pIsConnecting;
@@ -142,7 +143,6 @@ private:
     bool mLanIsConnectSuccess;
     bool mP2pIsConnectSuccess;
     bool mRelayIsConnectSuccess;
-#endif
 
     pthread_t mBroadcastThread;
     pthread_t mConnectTimeThread; 
@@ -194,7 +194,11 @@ private:
 	char mUid[64];
 	char mUsrAccount[64];
 	char mUsrPassword[64];
-    char mBroadcastAddr[64]; 
+    char mBroadcastAddr[64];
+    char mUsrAccountRsaEncoded[256];
+    char mUsrPasswordRsaEncoded[256];
+    char mAesKey[32];
+    char mAesKeyRsaEncoded[256];
 	int mLoginSeq;
 	int mLoginNeedVideo;
 	int mLoginNeedAudio;

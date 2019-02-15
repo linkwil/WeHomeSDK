@@ -14,6 +14,9 @@ LOCAL_SRC_FILES :=  ./com_linkwil_easycamsdk_EasyCamApi.c \
                     ./../../../src/YUV2RGB.cpp \
                     ./../../../src/adpcm.c \
                     ./../../../src/Discovery.cpp \
+                    ./../../../src/base64.c \
+                    ./../../../src/lwlAes.c \
+                    ./../../../src/lwlRsa.c \
                     ./../../../src/audio_process/analog_agc.c \
                     ./../../../src/audio_process/complex_bit_reverse.c \
                     ./../../../src/audio_process/complex_fft.c \
@@ -51,7 +54,8 @@ LOCAL_SRC_FILES :=  ./com_linkwil_easycamsdk_EasyCamApi.c \
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../src/ \
             $(LOCAL_PATH)/../../../src/platform \
 		    $(LOCAL_PATH)/../../../include \
-		    $(LOCAL_PATH)/../../../dep/include/
+		    $(LOCAL_PATH)/../../../dep/include/ \
+		    $(LOCAL_PATH)/../../../dep/include/ssl/
 		    
 
 ifeq ($(TARGET_ARCH_ABI),armeabi)
@@ -67,7 +71,7 @@ endif
 LOCAL_CFLAGS := -Wall -fvisibility=hidden
 LOCAL_CFLAGS += -D_ANDROID -DLINUX -DWEBRTC_POSIX
 
-LOCAL_LDLIBS := -llog -lstdc++ -lLINK_API -lPPCS_API -lNDT_API_PPCS
+LOCAL_LDLIBS := -llog -lstdc++ -lLINK_API -lPPCS_API -lNDT_API_PPCS -lcrypto
 
 
 include $(BUILD_SHARED_LIBRARY)

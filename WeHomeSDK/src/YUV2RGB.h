@@ -23,7 +23,8 @@
 
 
 #ifdef __cplusplus
-extern "C"{
+extern "C"
+{
 #endif /* End of #ifdef __cplusplus */
 
 void YUV420P2ARGB8888(char* yuv, int width, int height, char* rgb);

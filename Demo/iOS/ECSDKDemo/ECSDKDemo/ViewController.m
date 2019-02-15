@@ -29,7 +29,9 @@ typedef struct tagFrameHeadInfo
     unsigned int audio_format;
     unsigned int frame_type;            //0:video;1:audio;2:start;3:seek;4:end
     unsigned int wifiQuality;
-    unsigned char reserved[56];
+    int pbSessionNo;
+    unsigned char encrypted; // 是否支持加密
+    unsigned char reserved[51];
     char data[0];
 }__attribute__((packed))  FrameHeadInfo;
 
@@ -236,6 +238,10 @@ void AudioQueueInputCallbackFunc(
     _usrNameTextField.delegate = self;
     _passwordTextField.delegate = self;
     _cmdResultLabel.numberOfLines = 0;
+    
+    [_uidTextField setText:@""];
+    [_usrNameTextField setText:@""];
+    [_passwordTextField setText:@""];
     
 #pragma mark - init ECSDK
     EC_INIT_INFO sdkInitInfo;

@@ -21,6 +21,10 @@
 #ifndef ECLOG_H
 #define ECLOG_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* End of #ifdef __cplusplus */
 
 #ifndef LOG_TAG
 	#define LOG_TAG "EC-SDK"
@@ -56,5 +60,8 @@ void setLogFilePath(const char* path, int maxSize);
 
 void printLog(int level, const char* file, int line, const char* format, ...);
 
-
+#ifdef __cplusplus
+}
+#endif /* End of #ifdef __cplusplus */
+    
 #endif /*ECLOG_H*/

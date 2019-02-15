@@ -47,7 +47,9 @@
 #include "platform.h"
 
 #include "LINK_API.h"
-
+#include "lwlRsa.h"
+#include "lwlAes.h"
+#include "base64.h"
 
 #define MAX_CMD_QUEUE_SIZE 			(20)
 #define MAX_TALK_DATA_QUEUE_SIZE    (10)
@@ -57,6 +59,9 @@
 
 #define EASYCAM_AUDIO_FORMAT_PCM			(0)
 #define EASYCAM_AUDIO_FORMAT_ADPCM			(1)
+
+#define EASYCAM_AVDATA_AES_LENGTH (96)
+#define EASYCAM_AVDATA_AES_UNIT (4096)
 
 #ifdef _WIN32
 #pragma pack(1)
@@ -73,7 +78,8 @@ typedef struct tagFrameHeadInfo
 	unsigned int frameType;
 	unsigned int wifiQuality;
 	int pbSessionNo;
-	unsigned char reserved[52];
+	unsigned char encrypted; // 是否支持加密
+	unsigned char reserved[51];
 	char data[0];
 } FrameHeadInfo;
 #pragma pack()
@@ -91,7 +97,8 @@ typedef struct tagFrameHeadInfo
 	unsigned int frameType;
 	unsigned int wifiQuality;
     int pbSessionNo;
-	unsigned char reserved[52];
+    unsigned char encrypted; // 是否支持加密
+    unsigned char reserved[51];
 	char data[0];
 }__attribute__((packed))  FrameHeadInfo;
 #endif
@@ -108,9 +115,10 @@ typedef struct tagFrameHeadInfo
 	strcpy( pCmdMsgHead->data, cmdStr ); \
 }
 
-#define BUILD_TALK_PACK(pack, talkData, talkDataLen, payloadType, seq) \
+#define BUILD_TALK_PACK(pack, talkData, talkDataLen, payloadType, seq, isEncrypted) \
 { \
 	pack = new char[talkDataLen+sizeof(EasyCamMsgHead)+sizeof(FrameHeadInfo)]; \
+    memset(pack, 0x00, (talkDataLen+sizeof(EasyCamMsgHead)+sizeof(FrameHeadInfo))); \
 	EasyCamMsgHead* pCmdMsgHead = (EasyCamMsgHead* )pack; \
 	FrameHeadInfo* pFrameHead = (FrameHeadInfo* )pCmdMsgHead->data; \
 	strncpy( pCmdMsgHead->magic, "LINKWIL", 8 ); \
@@ -120,6 +128,7 @@ typedef struct tagFrameHeadInfo
 	pFrameHead->audioLen = talkDataLen; \
 	pFrameHead->videoLen = 0; \
 	pFrameHead->audio_format = payloadType; \
+    pFrameHead->encrypted = isEncrypted; \
 	memcpy( pFrameHead->data, talkData, talkDataLen ); \
 }
 
@@ -285,6 +294,35 @@ int CEasyCamClient::logIn(const char* uid, const char* usrName, const char* pass
     strncpy( mUsrPassword, password, 64 );
     memset( mBroadcastAddr, 0, 64);
     strncpy( mBroadcastAddr, broadcastAddr, 64);
+
+    // generate random aes key for each session
+    int getAesKeyRet = lwlaes_genRandomAesKey((unsigned char*)mAesKey);
+    if (getAesKeyRet == LWLAES_RETURN_FAIL)
+    {
+        return -1;
+    }
+    
+    int usrAccountRsaEncodedLen = 256;
+    int encRet = lwlrsa_encrypt((unsigned char*)mUsrAccount, (int)strlen(mUsrAccount), (unsigned char*)mUsrAccountRsaEncoded, &usrAccountRsaEncodedLen);
+    if (encRet == LWLRSA_RETURN_FAIL)
+    {
+        return -1;
+    }
+    
+    int usrPasswordRsaEncodedLen = 256;
+    encRet = lwlrsa_encrypt((unsigned char*)mUsrPassword, (int)strlen(mUsrPassword), (unsigned char*)mUsrPasswordRsaEncoded, &usrPasswordRsaEncodedLen);
+    if (encRet == LWLRSA_RETURN_FAIL)
+    {
+        return -1;
+    }
+    
+    int aesKeyRsaEncodedLen = 256;
+    encRet = lwlrsa_encrypt((unsigned char*)mAesKey, (int)strlen(mAesKey), (unsigned char*)mAesKeyRsaEncoded, &aesKeyRsaEncodedLen);
+    if (encRet == LWLRSA_RETURN_FAIL)
+    {
+        return -1;
+    }
+    
     mLoginSeq = seq;
     mLoginNeedVideo = needVideo;
     mLoginNeedAudio = needAudio;
@@ -296,7 +334,7 @@ int CEasyCamClient::logIn(const char* uid, const char* usrName, const char* pass
     mRelayIsConnecting = false;
     mConnectTimeRuning = false;
     mBroadcastThreadRun = true;
-    
+
     pthread_create(&mBroadcastThread, NULL, broadcastThread, this); 
     
     if (connectType & CONNECT_TYPE_LAN)
@@ -950,7 +988,7 @@ void* CEasyCamClient::connectTimeThread(void* param)
         if( pThis->mInitInfo.lpLoginResult != NULL )
         {
             pThis->mInitInfo.lpLoginResult(pThis->mSessionHandle, LOGIN_RESULT_CONNECT_FAIL,
-                                           pThis->mLoginSeq, 0, 0, 0);
+                                           pThis->mLoginSeq, 0, 0, 0, 0);
         }
     }
     
@@ -1099,8 +1137,47 @@ int CEasyCamClient::logOut(void)
 
 int CEasyCamClient::sendCommand(char* command, int seq)
 {
-	char* pCmdMsg = NULL;
-	BUILD_CMD_MSG(pCmdMsg, command, seq );
+    char* pCmdMsg = NULL;
+
+    if (mIsRsaLogin)
+    {
+        int comLen = strlen(command);
+        int cmdLenAligned = LEN_ALIGN(comLen, 16);
+        int encodedLen = BASE64_ENCODE_OUT_SIZE(cmdLenAligned) + 2;
+        char *encodedStr = (char*)malloc((size_t)encodedLen);
+        if (!encodedStr)
+        {
+            LOGE("sendCommand alloc fail");
+            return -1;
+        }
+        
+        char *pCmdAligned = (char*)malloc(cmdLenAligned);
+        if ( NULL == pCmdAligned)
+        {
+            LOGE("pCmdAligned alloc fail");
+            return -1;
+        }
+        memset(pCmdAligned, 0, cmdLenAligned);
+        memcpy(pCmdAligned, command, cmdLenAligned);
+        
+        int aesEncRet = lwlaes_encrypt((unsigned char*)mAesKey, (unsigned char*)pCmdAligned, cmdLenAligned, (unsigned char*)encodedStr, &encodedLen);
+        if (aesEncRet == LWLAES_RETURN_FAIL)
+        {
+            LOGE("sendCommand lwlaes_encrypt fail");
+            free(encodedStr);
+            free(pCmdAligned);
+            return -1;
+        }
+        
+        BUILD_CMD_MSG(pCmdMsg, encodedStr, seq);
+        free(encodedStr);
+        free(pCmdAligned);
+    }
+    else
+    {
+        BUILD_CMD_MSG(pCmdMsg, command, seq);
+    }
+    
 	if( pCmdMsg == NULL )
 	{
 		LOGE("BUILD_CMD_MSG fail");
@@ -1265,9 +1342,32 @@ int CEasyCamClient::sendTalkData(char* data, int dataLen, int payloadType, int s
 
     payloadType = 0x11; // ADPCM
     adpcm_encoder( (short *)mTalkAgcOutBuf, mTalkAdpcmBuf, dataLen/2, &mAdpcmEncState);
-    BUILD_TALK_PACK(pTalkPack, mTalkAdpcmBuf, (dataLen/4), payloadType, seq);
     
-//    BUILD_TALK_PACK(pTalkPack, data, dataLen, payloadType, seq);
+    if (mIsRsaLogin)
+    {
+        int encryptedLen = (dataLen/4)-(dataLen/4)%16;
+        char aesEncodedBuf[1024] = {0};
+        int aesEncRet = lwlaes_encrypt_nobase64((unsigned char*)mAesKey, (unsigned char*)mTalkAdpcmBuf, encryptedLen,
+                (unsigned char*)aesEncodedBuf, &encryptedLen);
+        if ( LWLAES_RETURN_FAIL == aesEncRet)
+        {
+            LOGE("talk pack aes encrypt fail");
+            return -1;
+        }
+        
+        int noEncryptLen = (dataLen/4)%16;
+        if (noEncryptLen > 0)
+        {
+            memcpy(aesEncodedBuf+encryptedLen, mTalkAdpcmBuf+encryptedLen, (size_t)noEncryptLen);
+        }
+
+        BUILD_TALK_PACK(pTalkPack, aesEncodedBuf, (dataLen/4), payloadType, seq, 1);
+
+    }else
+    {
+        BUILD_TALK_PACK(pTalkPack, mTalkAdpcmBuf, (dataLen/4), payloadType, seq, 0);
+    }
+
     if( pTalkPack == NULL )
     {
         LOGE("Build talk pack fail");
@@ -1488,10 +1588,22 @@ int CEasyCamClient::sendLoginCmd(int sessionHandle)
     char* jsonStr = NULL;
     pJsonRoot = cJSON_CreateObject();
     cJSON_AddNumberToObject(pJsonRoot, "cmdId", EC_CMD_ID_LOGIN);
-    cJSON_AddStringToObject(pJsonRoot, "usrName", mUsrAccount);
-    cJSON_AddStringToObject(pJsonRoot, "password", mUsrPassword);
+
+    if (mIsRsaLogin)
+    {
+        cJSON_AddStringToObject(pJsonRoot, "usrName", mUsrAccountRsaEncoded);
+        cJSON_AddStringToObject(pJsonRoot, "password", mUsrPasswordRsaEncoded);
+        cJSON_AddStringToObject(pJsonRoot, "aesKey", mAesKeyRsaEncoded);
+    }
+    else
+    {
+        cJSON_AddStringToObject(pJsonRoot, "usrName", mUsrAccount);
+        cJSON_AddStringToObject(pJsonRoot, "password", mUsrPassword);
+    }
+    
     cJSON_AddNumberToObject(pJsonRoot, "needVideo", mLoginNeedVideo);
     cJSON_AddNumberToObject(pJsonRoot, "needAudio", mLoginNeedAudio);
+    
     jsonStr = cJSON_Print(pJsonRoot);
     cJSON_Minify(jsonStr);
     int seq = mLoginSeq;
@@ -1504,7 +1616,7 @@ int CEasyCamClient::sendLoginCmd(int sessionHandle)
         LOGE("Add cmd to queue fail");
         if( mInitInfo.lpLoginResult != NULL )
         {
-            mInitInfo.lpLoginResult(sessionHandle, LOGIN_RESULT_FAIL_UNKOWN, mLoginSeq, 0, 0, 0);
+            mInitInfo.lpLoginResult(sessionHandle, LOGIN_RESULT_FAIL_UNKOWN, mLoginSeq, 0, 0, 0, 0);
         }
     }
 
@@ -1556,13 +1668,13 @@ void* CEasyCamClient::broadcastThread(void* param)
         theirAddr.sin_addr.s_addr = inet_addr(pThis->mBroadcastAddr);
         theirAddr.sin_port = htons(2888);
         //printf("broadcastThread, pThis->mBroadcastAddr:%s\n", pThis->mBroadcastAddr);
-        
+
         while (pThis->mBroadcastThreadRun)
         {
             int sendBytes;
             if((sendBytes = sendto(brdcFd, pThis->mUid, strlen(pThis->mUid), 0, (struct sockaddr *)&theirAddr, sizeof(struct sockaddr))) == -1)
             {
-                
+
                // printf("sendto fail, errno=%d\n", errno);
                // printf("errno str:%s\n", strerror(errno));
             }else
@@ -1626,6 +1738,13 @@ void CEasyCamClient::handleCmdLoginResp(char* data, int seq)
         isCharging = pItem->valueint;
     }
     
+    unsigned int supportEncryption = 0;
+    pItem = cJSON_GetObjectItem(pJson, "supportEncryption");
+    if( pItem != NULL )
+    {
+        supportEncryption = pItem->valueint;
+    }
+    
 //    unsigned int isVolSetSupport = 0;
 //    pItem = cJSON_GetObjectItem(pJson, "isVolSetSupport");
 //    if( pItem != NULL )
@@ -1636,7 +1755,7 @@ void CEasyCamClient::handleCmdLoginResp(char* data, int seq)
 
 	if( mInitInfo.lpLoginResult != NULL )
 	{
-		mInitInfo.lpLoginResult(mSessionHandle, logInErrorCode, seq, notificationToken, isCharging, batPercent);
+		mInitInfo.lpLoginResult(mSessionHandle, logInErrorCode, seq, notificationToken, isCharging, batPercent, supportEncryption);
 	}
 }
 
@@ -1651,34 +1770,83 @@ void CEasyCamClient::handleCmdResp(char* data, int seq)
 int CEasyCamClient::handleMsg(int fd, char* data, int len)
 {
 	EasyCamMsgHead* pMsgHead = (EasyCamMsgHead* )data;
-	//LOGD("handleMsg, msgId:%d", pMsgHead->msgId);
+//    LOGD("handleMsg, msgId:%d, dataLen:%d", pMsgHead->msgId, pMsgHead->dataLen);
 	if( pMsgHead->msgId == EC_MSG_ID_CMD_RESP )
 	{
+//        LOGD("handleMsg, msgId:%d, dataLen:%d", pMsgHead->msgId, pMsgHead->dataLen);
+        
+        int isAesData = 0;
+        unsigned int cmdRespStrLen = pMsgHead->dataLen - sizeof(EasyCamMsgHead) - 1;
+        unsigned int decodedLen = cmdRespStrLen;
+        char *decodedBuf = (char*)malloc(decodedLen);
+        if (!decodedBuf)
+        {
+            LOGE("Parse cmd, malloc fail");
+            return -1;
+        }
 		int cmdId = 0;
-		cJSON * pJson = cJSON_Parse(pMsgHead->data);
+        
+        cJSON * pJson = cJSON_Parse(pMsgHead->data);
 		cJSON * pItem = NULL;
-		if( pJson == NULL )
+        
+        if (pJson)
+        {
+            pItem = cJSON_GetObjectItem(pJson, "cmdId");
+        }
+		if( pJson == NULL || pItem == NULL)
 		{
-			LOGE("Parse cmd response fail");
-			return -1;
+            int aesDecRet = lwlaes_decrypt((unsigned char *)mAesKey, (unsigned char *)pMsgHead->data, cmdRespStrLen,
+                    (unsigned char *)decodedBuf, (int*)&decodedLen);
+            if (aesDecRet == LWLAES_RETURN_FAIL)
+            {
+                LOGE("Parse cmd, lwlaes_decrypt fail");
+                free(decodedBuf);
+                return -1;
+            }
+            
+            pJson = cJSON_Parse(decodedBuf);
+            if( pJson == NULL )
+            {
+                LOGE("Parse cmd response fail");
+                free(decodedBuf);
+
+                return -1;
+            }
+            isAesData = 1;
 		}
+
+        pItem = NULL;
 		pItem = cJSON_GetObjectItem(pJson, "cmdId");
 		if( pItem == NULL )
 		{
 			LOGE("get cmdId fail");
+            free(decodedBuf);
 			return -1;
 		}
 		cmdId = pItem->valueint;
 		if( cmdId == EC_CMD_ID_LOGIN )
 		{
-			LOGD("Got response of login:%s", cJSON_Print(pJson));
-			handleCmdLoginResp(pMsgHead->data, pMsgHead->seq);
+            if (isAesData)
+            {
+                handleCmdLoginResp(decodedBuf, pMsgHead->seq);
+            }else
+            {
+                handleCmdLoginResp(pMsgHead->data, pMsgHead->seq);
+            }
 		}
 		else
 		{
-			handleCmdResp(pMsgHead->data, pMsgHead->seq);
+            if (isAesData)
+            {
+                handleCmdResp(decodedBuf, pMsgHead->seq);
+            }else
+            {
+                handleCmdResp(pMsgHead->data, pMsgHead->seq);
+            }
 		}
 		cJSON_Delete(pJson);
+
+        free(decodedBuf);
 
 		return 0;
 	}
@@ -1687,7 +1855,32 @@ int CEasyCamClient::handleMsg(int fd, char* data, int len)
 		// Recv av data
 		FrameHeadInfo* pFrame = (FrameHeadInfo* )pMsgHead->data;
 		//LOGD("videoLen:%d, audioLen:%d, fd:%d", pFrame->videoLen, pFrame->audioLen, fd);
-		if( pFrame->audioLen > 0 )
+		
+        int dataSumLen = pFrame->videoLen + pFrame->audioLen;
+        if ( mIsRsaLogin && (dataSumLen > EASYCAM_AVDATA_AES_LENGTH) )
+        {
+            int remainLen = dataSumLen;
+            char *pDataPoint = pFrame->data;
+            while (remainLen >= EASYCAM_AVDATA_AES_LENGTH)
+            {
+                char aesDecodedDataBuf[EASYCAM_AVDATA_AES_LENGTH] = {0};
+                int aedDecodedBufSize = EASYCAM_AVDATA_AES_LENGTH;
+                int aesDecRet = lwlaes_decrypt_nobase64((unsigned char*)mAesKey, (unsigned char*)pDataPoint, EASYCAM_AVDATA_AES_LENGTH,
+                        (unsigned char*)aesDecodedDataBuf, &aedDecodedBufSize);
+                if ( LWLAES_RETURN_FAIL == aesDecRet )
+                {
+                    LOGE("aes decrypt return fail");
+                    break;
+                }else
+                {
+                    memcpy(pDataPoint, aesDecodedDataBuf, aedDecodedBufSize);
+                }
+                pDataPoint += EASYCAM_AVDATA_AES_UNIT;
+                remainLen -= EASYCAM_AVDATA_AES_UNIT;
+            }
+        } //end! if ( mIsRsaLogin && (dataSumLen > EASYCAM_AVDATA_AES_LENGTH) )
+        
+        if( pFrame->audioLen > 0 )
 		{
 			if( mInitInfo.lpAudio_RecvData != NULL )
 			{
@@ -1782,6 +1975,32 @@ int CEasyCamClient::handleMsg(int fd, char* data, int len)
 	        }
 	        return 0;
 	    }
+        
+        
+        int dataSumLen = pFrame->videoLen + pFrame->audioLen;
+        if ( mIsRsaLogin && (dataSumLen > EASYCAM_AVDATA_AES_LENGTH) )
+        {
+            int remainLen = dataSumLen;
+            char *pDataPoint = pFrame->data;
+            while (remainLen >= EASYCAM_AVDATA_AES_LENGTH)
+            {
+                char aesDecodedDataBuf[EASYCAM_AVDATA_AES_LENGTH] = {0};
+                int aesDecodedBufSize = EASYCAM_AVDATA_AES_LENGTH;
+                int aesDecRet = lwlaes_decrypt_nobase64((unsigned char*)mAesKey, (unsigned char*)pDataPoint, EASYCAM_AVDATA_AES_LENGTH,
+                        (unsigned char*)aesDecodedDataBuf, &aesDecodedBufSize);
+                
+                if ( LWLAES_RETURN_FAIL == aesDecRet )
+                {
+                    LOGE("aes decrypt return fail");
+                    break;
+                }else
+                {
+                    memcpy(pDataPoint, aesDecodedDataBuf, aesDecodedBufSize);
+                }
+                pDataPoint += EASYCAM_AVDATA_AES_UNIT;
+                remainLen -= EASYCAM_AVDATA_AES_UNIT;
+            }
+        } //end! if ( mIsRsaLogin && (dataSumLen > EASYCAM_AVDATA_AES_LENGTH) )
 
 	    if( pFrame->audioLen > 0 )
 	    {

@@ -1,10 +1,3 @@
-//
-//  LINK_API.h
-//  LINK_API
-//
-//  Created by linkwil on 2018/5/16.
-//  Copyright © 2018年 linkwil. All rights reserved.
-//
 
 #ifndef LINK_API_h
 #define LINK_API_h
@@ -16,6 +9,7 @@
 #else
 #define LINK_API_API  //__declspec(dllimport)
 #endif
+#include<winsock2.h>
 #endif /* WIN32DLL */
 
 #ifdef LINUX
@@ -40,6 +34,8 @@ typedef enum TAG_LINK_SUB_RETURN
 {
     LINK_SUB_RETURN_FALES = -1,
     LINK_SUB_RETURN_OK = 0,
+    LINK_SUB_SUCCESS = 1,
+    LINK_SUB_FAIL = 2,
 }LINK_SUB_RETURN;
     
 //query dev and wakeup server connect status
@@ -133,6 +129,7 @@ typedef void(*OnlineQueryResultCallback)(int queryResult, const char* uid, int l
     LINK_API_API INT32 LINK_Subscribe(const CHAR* uid, const CHAR* appName,   const CHAR* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_UnSubscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_ResetBadge(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
+    LINK_API_API INT32 LINK_ChkSubscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
  
 #ifdef __cplusplus
 }

@@ -607,3 +607,24 @@ Java_com_linkwil_easycamsdk_EasyCamApi_resetBadge(JNIEnv *env, jobject instance,
 
     return ret;
 }
+
+JNIEXPORT jint JNICALL
+Java_com_linkwil_easycamsdk_EasyCamApi_checkSubscribe(JNIEnv *env, jobject instance, jstring uid_,
+                                                  jstring appName_, jstring agName_,
+                                                  jstring phoneToken_, jint eventCh) {
+    int ret = 0;
+
+    const char *uid = (*env)->GetStringUTFChars(env, uid_, 0);
+    const char *appName = (*env)->GetStringUTFChars(env, appName_, 0);
+    const char *agName = (*env)->GetStringUTFChars(env, agName_, 0);
+    const char *phoneToken = (*env)->GetStringUTFChars(env, phoneToken_, 0);
+
+    ret = EC_ChkSub(uid, appName, agName, phoneToken, (unsigned int)eventCh);
+
+    (*env)->ReleaseStringUTFChars(env, uid_, uid);
+    (*env)->ReleaseStringUTFChars(env, appName_, appName);
+    (*env)->ReleaseStringUTFChars(env, agName_, agName);
+    (*env)->ReleaseStringUTFChars(env, phoneToken_, phoneToken);
+
+    return ret;
+}

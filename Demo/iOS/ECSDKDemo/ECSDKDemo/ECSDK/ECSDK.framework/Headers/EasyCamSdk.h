@@ -37,12 +37,12 @@ extern "C" {
 #endif /* End of #ifdef __cplusplus */
 
 	// Login result
-#define LOGIN_RESULT_SUCCESS 				    0
+#define LOGIN_RESULT_SUCCESS 				0
 #define LOGIN_RESULT_CONNECT_FAIL			(-1)
 #define LOGIN_RESULT_AUTH_FAIL				(-2)
 #define LOGIN_RESULT_EXCEED_MAX_CONNECTION	(-3)
 #define LOGIN_RESULT_RESULT_FORMAT_ERROR	(-4)
-#define LOGIN_RESULT_FAIL_UNKOWN			    (-5)
+#define LOGIN_RESULT_FAIL_UNKOWN			(-5)
 
 
 	// Send command result
@@ -229,6 +229,8 @@ EASYCAM_API int EC_Detect_Network_Type(const char* uid);
 EASYCAM_API int EC_Subscribe(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
 EASYCAM_API int EC_UnSubscribe(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
 EASYCAM_API int EC_ResetBadge(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
+EASYCAM_API int EC_ChkSub(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
+
 
 #ifdef __cplusplus
 }

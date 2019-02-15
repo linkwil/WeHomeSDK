@@ -248,14 +248,49 @@ static void EC_PIRData_RecvData(int handle, long long timeMS, short adcVal)
 	}
 }
 
-static void EC_OnLoginResult(int handle, int errorCode, int seq, unsigned int notificationToken, unsigned int isCharging, unsigned int batPercent)
+static void EC_OnLoginResult(int handle, int errorCode, int seq, unsigned int notificationToken, unsigned int isCharging, unsigned int batPercent, unsigned int supportEncryption)
 {
-	LOGD("EC_OnLoginResult, handle:%d, errorCode:%d, seq:%d, notificationToken:%#X, isCharging:%d, bat:%d",
-		handle, errorCode, seq, notificationToken, isCharging, batPercent);
-	if (sECInitInfo.lpLoginResult)
-	{
-		sECInitInfo.lpLoginResult(handle, errorCode, seq, notificationToken, isCharging, batPercent);
-	}
+    LOGD("EC_OnLoginResult, handle:%d, errorCode:%d, seq:%d, notificationToken:%#X, isCharging:%d, bat:%d, supportEncryption:%d",
+		handle, errorCode, seq, notificationToken, isCharging, batPercent, supportEncryption);
+    
+    if ( (0 == supportEncryption) && (LOGIN_RESULT_AUTH_FAIL == errorCode) )
+    {
+        pthread_mutex_lock(&sSessionMutex);
+        
+        std::list<SessionInfo>::iterator it = std::find_if(sSessionList.begin(),
+                                                           sSessionList.end(), CSessionCompare(handle));
+        if (it != sSessionList.end())
+        {
+            if (it->pClient != NULL)
+            {
+                if (it->refCnt > 0)
+                {
+                    if (it->pClient->mIsRsaLogin)
+                    {
+                        it->pClient->mIsRsaLogin = 0;
+                        it->pClient->sendLoginCmd(handle);
+                    }
+                    else
+                    {
+                        pthread_mutex_unlock(&sSessionMutex);
+                        if (sECInitInfo.lpLoginResult)
+                        {
+                            sECInitInfo.lpLoginResult(handle, errorCode, seq, notificationToken, isCharging, batPercent);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+        pthread_mutex_unlock(&sSessionMutex);
+    }
+    else
+    {
+        if (sECInitInfo.lpLoginResult)
+        {
+            sECInitInfo.lpLoginResult(handle, errorCode, seq, notificationToken, isCharging, batPercent);
+        }
+    }
 }
 
 static void EC_OnCommandResult(int handle, char* data, int seq)
@@ -366,15 +401,6 @@ void EC_DeInitialize(void)
 }
 
 //query dev and wakeup server connect status
-#define ERROR_NotLogin				-1
-#define ERROR_InvalidParameter		-2
-#define ERROR_SocketCreateFailed	-3
-#define ERROR_SendToFailed			-4
-#define ERROR_RecvFromFailed		-5
-#define ERROR_UnKnown				-99
-
-#define SERVER_NUM                  3
-
 void *WakeUp_Query_ThreadFunc(void *arg)
 {
 #ifdef _ANDROID
@@ -466,7 +492,8 @@ int EC_QueryOnlineStatus(const char* uid, OnlineQueryResultCallback callback)
 int EC_Login(const char* uid, const char* usrName, const char* password, const char* broadcastAddr,
 	int seq, int needVideo, int needAudio, int connectType, int timeout)
 {
-	if (!sHasSdkInited) {
+	if (!sHasSdkInited)
+    {
 		LOGE("Please init sdk firstly");
 		return -1;
 	}
@@ -485,6 +512,7 @@ int EC_Login(const char* uid, const char* usrName, const char* password, const c
 	init.lpPIRData_RecvData = EC_PIRData_RecvData;
 	session.pClient = new CEasyCamClient(&init, session.handle, uid);
 	session.refCnt = 1;
+    session.pClient->mIsRsaLogin = 1;
     
 	pthread_mutex_lock(&sSessionMutex);
 	sSessionList.push_back(session);
@@ -553,7 +581,8 @@ int EC_GetDevList(DeviceInfo* pDevInfo, int devInfoSize)
 
 int EC_SendCommand(int handle, char* command, int seq)
 {
-	if (!sHasSdkInited) {
+	if (!sHasSdkInited)
+    {
 		LOGE("Please init sdk firstly");
 		return -1;
 	}
@@ -583,6 +612,7 @@ int EC_SendCommand(int handle, char* command, int seq)
 			pCmdWithTokenStr = cJSON_Print(pJson);
 			cJSON_Minify(pCmdWithTokenStr);
 			LOGD("pCmdWithTokenStr:%s", pCmdWithTokenStr);
+            
 			if (it->pClient->sendCommand(pCmdWithTokenStr, seq) != 0)
 			{
 				LOGE("Send command fail");
@@ -667,6 +697,12 @@ int EC_ResetBadge(const char* uid, const char* appName,  const char* agName, con
 {
     return LINK_ResetBadge(uid, appName, agName, phoneToken, eventCh);
 }
+
+int EC_ChkSub(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh)
+{
+    return LINK_ChkSubscribe(uid, appName, agName, phoneToken, eventCh);
+}
+
 
 /*========================================================
    Only used for android JNI

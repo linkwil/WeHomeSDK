@@ -23,7 +23,7 @@
     <ProjectGuid>{CF358C3C-AD33-451F-BEE0-928286ADCFE7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>EasyCamSdk</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -90,23 +90,23 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;EASYCAM_API_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32DLL;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;..\..\..\..\dep\include\ssl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;PPCS_API.lib;pthreadVSE1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;PPCS_API.lib;pthreadVSE1.lib;LinkAPI.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\..\dep\lib\win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;EASYCAM_API_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;WIN32DLL;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\src\platform;..\..\..\..\src\audio_process;..\..\..\..\src;..\..\..\..\dep\include\pthread;..\..\..\..\dep\include;..\..\..\..\dep\include\ssl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -133,18 +133,18 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\..\..\dep\lib\win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;PPCS_API.lib;pthreadVSE1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;pthreadVSE2.lib;PPCS_API.lib;libeay32.lib;ssleay32.lib;LinkAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;EASYCAMSDK_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -188,12 +188,15 @@
     <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt.c" />
     <ClCompile Include="..\..\..\..\src\audio_process\spl_sqrt_floor.c" />
     <ClCompile Include="..\..\..\..\src\audio_process\vector_scaling_operations.c" />
+    <ClCompile Include="..\..\..\..\src\base64.c" />
     <ClCompile Include="..\..\..\..\src\CEasyCamClient.cpp" />
     <ClCompile Include="..\..\..\..\src\cJSON.c" />
     <ClCompile Include="..\..\..\..\src\Discovery.cpp" />
     <ClCompile Include="..\..\..\..\src\EasyCamSdk.cpp" />
     <ClCompile Include="..\..\..\..\src\ECLog.cpp" />
     <ClCompile Include="..\..\..\..\src\JNIEnv.cpp" />
+    <ClCompile Include="..\..\..\..\src\lwlAes.c" />
+    <ClCompile Include="..\..\..\..\src\lwlRsa.c" />
     <ClCompile Include="..\..\..\..\src\platform\platform.cpp" />
     <ClCompile Include="..\..\..\..\src\YUV2RGB.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -205,6 +208,81 @@
     <ClInclude Include="..\..\..\..\dep\include\pthread\pthread.h" />
     <ClInclude Include="..\..\..\..\dep\include\pthread\sched.h" />
     <ClInclude Include="..\..\..\..\dep\include\pthread\semaphore.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\aes.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\asn1.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\asn1t.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\asn1_mac.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\bio.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\blowfish.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\bn.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\buffer.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\camellia.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\cast.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\cmac.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\cms.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\comp.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\conf.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\conf_api.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\crypto.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\des.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\des_old.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\dh.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\dsa.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\dso.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\dtls1.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ebcdic.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ec.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ecdh.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ecdsa.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\engine.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\err.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\evp.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\e_os2.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\hmac.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\idea.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\krb5_asn.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\kssl.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\lhash.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\md4.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\md5.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\mdc2.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\modes.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\objects.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\obj_mac.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ocsp.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\opensslconf.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\opensslv.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ossl_typ.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\pem.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\pem2.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\pkcs12.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\pkcs7.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\pqueue.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\rand.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\rc2.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\rc4.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ripemd.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\rsa.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\safestack.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\seed.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\sha.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\srp.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\srtp.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ssl.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ssl2.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ssl23.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ssl3.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\stack.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\symhacks.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\tls1.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ts.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\txt_db.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ui.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\ui_compat.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\whrlpool.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\x509.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\x509v3.h" />
+    <ClInclude Include="..\..\..\..\dep\include\ssl\openssl\x509_vfy.h" />
     <ClInclude Include="..\..\..\..\include\EasyCamSdk.h" />
     <ClInclude Include="..\..\..\..\src\adpcm.h" />
     <ClInclude Include="..\..\..\..\src\audio_process\analog_agc.h" />
@@ -226,16 +304,23 @@
     <ClInclude Include="..\..\..\..\src\audio_process\spl_inl.h" />
     <ClInclude Include="..\..\..\..\src\audio_process\typedefs.h" />
     <ClInclude Include="..\..\..\..\src\audio_process\windows_private.h" />
+    <ClInclude Include="..\..\..\..\src\base64.h" />
     <ClInclude Include="..\..\..\..\src\CEasyCamClient.h" />
     <ClInclude Include="..\..\..\..\src\cJSON.h" />
     <ClInclude Include="..\..\..\..\src\Discovery.h" />
     <ClInclude Include="..\..\..\..\src\EasyCamMsg.h" />
     <ClInclude Include="..\..\..\..\src\ECLog.h" />
     <ClInclude Include="..\..\..\..\src\JNIEnv.h" />
+    <ClInclude Include="..\..\..\..\src\lwlAes.h" />
+    <ClInclude Include="..\..\..\..\src\lwlRsa.h" />
     <ClInclude Include="..\..\..\..\src\platform\platform.h" />
     <ClInclude Include="..\..\..\..\src\YUV2RGB.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EasyCamSdk.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
