@@ -88,7 +88,7 @@ int lwlrsa_encrypt(unsigned char *srcBuf, int srcLen, unsigned char *encryptedBu
             return LWLRSA_RETURN_FAIL;
         }
 
-        int base64Len = BASE64_ENCODE_OUT_SIZE(rsaSize);
+        int base64Len = rsaSize * 1.5;
         if( *encryptedBufLen < base64Len )
         {
             LOGE("lwlrsa_encrypt, Encrypted buf size not enough");
@@ -102,6 +102,9 @@ int lwlrsa_encrypt(unsigned char *srcBuf, int srcLen, unsigned char *encryptedBu
             RSA_free(pEnRsa);
             return LWLRSA_RETURN_FAIL;
         }
+        
+        memset(noBase64RsaEncStr, 0, *encryptedBufLen);
+
 
         int result = RSA_public_encrypt(srcLen, srcBuf, (unsigned char*)noBase64RsaEncStr, pEnRsa, RSA_PKCS1_PADDING);
         if (result < 0)
@@ -112,7 +115,8 @@ int lwlrsa_encrypt(unsigned char *srcBuf, int srcLen, unsigned char *encryptedBu
             return LWLRSA_RETURN_FAIL;
         }
 
-        base64_encode((const unsigned char*)noBase64RsaEncStr, (unsigned int)result, (char*)encryptedBuf);
+        base64_encode((const unsigned char *)noBase64RsaEncStr, result, (unsigned char*)encryptedBuf, &base64Len);
+        
         *encryptedBufLen = base64Len;
         RSA_free(pEnRsa);
         free(noBase64RsaEncStr);

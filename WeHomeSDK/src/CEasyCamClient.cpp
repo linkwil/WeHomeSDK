@@ -294,6 +294,8 @@ int CEasyCamClient::logIn(const char* uid, const char* usrName, const char* pass
     strncpy( mUsrPassword, password, 64 );
     memset( mBroadcastAddr, 0, 64);
     strncpy( mBroadcastAddr, broadcastAddr, 64);
+    memset(mUsrAccountRsaEncoded, 0, 256);
+    memset(mUsrPasswordRsaEncoded, 0, 256);
 
     // generate random aes key for each session
     int getAesKeyRet = lwlaes_genRandomAesKey((unsigned char*)mAesKey);
@@ -1143,7 +1145,7 @@ int CEasyCamClient::sendCommand(char* command, int seq)
     {
         int comLen = strlen(command);
         int cmdLenAligned = LEN_ALIGN(comLen, 16);
-        int encodedLen = BASE64_ENCODE_OUT_SIZE(cmdLenAligned) + 2;
+        int encodedLen = cmdLenAligned * 1.5;
         char *encodedStr = (char*)malloc((size_t)encodedLen);
         if (!encodedStr)
         {
@@ -1159,7 +1161,8 @@ int CEasyCamClient::sendCommand(char* command, int seq)
         }
         memset(pCmdAligned, 0, cmdLenAligned);
         memcpy(pCmdAligned, command, cmdLenAligned);
-        
+        memset(encodedStr, 0, encodedLen);
+
         int aesEncRet = lwlaes_encrypt((unsigned char*)mAesKey, (unsigned char*)pCmdAligned, cmdLenAligned, (unsigned char*)encodedStr, &encodedLen);
         if (aesEncRet == LWLAES_RETURN_FAIL)
         {
@@ -1784,8 +1787,10 @@ int CEasyCamClient::handleMsg(int fd, char* data, int len)
             LOGE("Parse cmd, malloc fail");
             return -1;
         }
-		int cmdId = 0;
         
+        memset(decodedBuf, 0, decodedLen);
+        
+		int cmdId = 0;
         cJSON * pJson = cJSON_Parse(pMsgHead->data);
 		cJSON * pItem = NULL;
         

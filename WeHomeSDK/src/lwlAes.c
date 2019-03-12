@@ -114,7 +114,7 @@ int lwlaes_encrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
         return LWLAES_RETURN_FAIL;
     }
 
-    int base64Len = BASE64_ENCODE_OUT_SIZE(srcStrLen);
+    int base64Len = srcStrLen * 1.5;
     if (*encryptedStrBufLen < base64Len)
     {
         LOGE("lwlaes_encrypt, afterStrBufLen error, return fail");
@@ -127,6 +127,8 @@ int lwlaes_encrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
         LOGE("malloc error, return fail");
         return LWLAES_RETURN_FAIL;
     }
+    
+    memset(noBase64AesEncStr, 0, base64Len);
 
     int ret = 0;
     AES_KEY sslAesEncKey;
@@ -141,8 +143,8 @@ int lwlaes_encrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
 
     char ivec[16] = {0};
     AES_cbc_encrypt(srcStr, (unsigned char*)noBase64AesEncStr, (size_t)srcStrLen, &sslAesEncKey, (unsigned char *)ivec, AES_ENCRYPT);
-
-    base64_encode((const unsigned char*)noBase64AesEncStr, (unsigned int)srcStrLen, (char*)encryptedStrBuf);
+    
+    base64_encode((const unsigned char *)noBase64AesEncStr, srcStrLen, (unsigned char*)encryptedStrBuf, &base64Len);
     *encryptedStrBufLen = base64Len;
 
     free(noBase64AesEncStr);
@@ -198,8 +200,8 @@ int lwlaes_decrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
         return LWLAES_RETURN_FAIL;
     }
     
-    size_t noBase64Len = BASE64_DECODE_OUT_SIZE(srcStrLen);
-    char *noBase64Str = (char*)malloc(noBase64Len+1);
+    int noBase64Len = srcStrLen;
+    char *noBase64Str = (char*)malloc(noBase64Len);
     if (!noBase64Str)
     {
         LOGE("malloc error, return fail");
@@ -208,7 +210,7 @@ int lwlaes_decrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
     
     memset(noBase64Str, 0, noBase64Len);
 
-    base64_decode((const char *)srcStr, (unsigned int)srcStrLen, (unsigned char*)noBase64Str);
+    base64_decode((const unsigned char *)srcStr, srcStrLen, (unsigned char *)noBase64Str, &noBase64Len);
     
     char ivec[16] = {0};
     AES_cbc_encrypt((unsigned char*)noBase64Str, decryptedStrBuf, noBase64Len, &sslAesDecKey, (unsigned char *)ivec, AES_DECRYPT);
