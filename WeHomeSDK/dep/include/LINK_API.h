@@ -32,7 +32,7 @@ extern "C" {
     
 typedef enum TAG_LINK_SUB_RETURN
 {
-    LINK_SUB_RETURN_FALES = -1,
+    LINK_SUB_RETURN_FAIL = -1,
     LINK_SUB_RETURN_OK = 0,
     LINK_SUB_SUCCESS = 1,
     LINK_SUB_FAIL = 2,
@@ -126,7 +126,7 @@ typedef void(*OnlineQueryResultCallback)(int queryResult, const char* uid, int l
                                          int *LastLogin2,
                                          int *LastLogin3);
     
-    LINK_API_API INT32 LINK_Subscribe(const CHAR* uid, const CHAR* appName,   const CHAR* agName, const char* phoneToken, unsigned int eventCh);
+    LINK_API_API INT32 LINK_Subscribe(const CHAR* uid, const CHAR* appName,   const CHAR* agName, const char* phoneToken, const char* devName, unsigned int eventCh);
     LINK_API_API INT32 LINK_UnSubscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_ResetBadge(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);
     LINK_API_API INT32 LINK_ChkSubscribe(const char* uid, const char* appName,   const char* agName, const char* phoneToken, unsigned int eventCh);

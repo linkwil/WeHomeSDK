@@ -38,7 +38,8 @@ typedef struct tagFrameHeadInfo
 
 static ViewController *gVC = nil;
 static int gECSDKHandle = 0;
-static int gSeq = 0;
+static int gSeq = 888;
+static int loginSeq = 0;
 static unsigned char *videoOutputData = nil;
 
 NSMutableArray *videoDataQueue = nil;
@@ -52,7 +53,7 @@ void lpLoginResult(int handle, int errorCode, int seq, unsigned int notification
     NSLog(@"lpLoginResult enter");
     NSLog(@"lpLoginResult, handle:%d, errorCode:%d, seq:%d, notificationToken:%d, isCharging:%d, batPercent:%d", handle, errorCode, seq, notificationToken, isCharging, batPercent);
     
-    if (gECSDKHandle == handle)
+    if (gECSDKHandle == handle && loginSeq == seq)
     {
         
         dispatch_async(dispatch_get_main_queue(), ^
@@ -104,6 +105,13 @@ void lpCmdResult(int handle, char* data, int errorCode, int seq)
         dispatch_async(dispatch_get_main_queue(), ^
                        {
                            NSString *cmdResultStr = [NSString stringWithFormat:@"cmd result:\n\n%s", data];
+                           NSLog(@"cmdResultStr:%@", cmdResultStr);
+                           
+                           if (!cmdResultStr || [cmdResultStr length] <= 0)
+                           {
+                               NSLog(@"cmdResultStr error!!!!!!!!!!!!!!!!!!!!!!");
+                           }
+                           
                            [gVC setCmdResult:cmdResultStr];
                            
                        });
@@ -239,6 +247,7 @@ void AudioQueueInputCallbackFunc(
     _passwordTextField.delegate = self;
     _cmdResultLabel.numberOfLines = 0;
     
+#pragma mark - ===== set uid & usrName & password =====
     [_uidTextField setText:@""];
     [_usrNameTextField setText:@""];
     [_passwordTextField setText:@""];
@@ -378,6 +387,7 @@ void AudioQueueInputCallbackFunc(
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - ===== login =====
 - (IBAction)loginBtnFunc:(id)sender
 {
     [_loginBtn setEnabled:NO];
@@ -387,8 +397,10 @@ void AudioQueueInputCallbackFunc(
     NSString *broadcastAddr = [self getIPAddress];
     
     gSeq++;
+    loginSeq = gSeq;
+
     gECSDKHandle = EC_Login([[_uidTextField text] UTF8String], [usrNameStr  UTF8String], [[_passwordTextField text] UTF8String], [broadcastAddr UTF8String] , gSeq, 1, 1, (CONNECT_TYPE_LAN | CONNECT_TYPE_P2P | CONNECT_TYPE_RELAY), 10);
-    
+ 
     [_audioPlayer lwlStartPlay];
 }
 

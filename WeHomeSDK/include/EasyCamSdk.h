@@ -91,8 +91,23 @@ enum EC_SDK_CMD_ID
     
     //upgrade
     EC_SDK_CMD_ID_UPGRADE = 0x400,                   //Upgrade the firmware of a remote device
+
+    //station cmd
+    EC_SDK_STATION_CMD_ID_START_SETUP_DEV = 0x1000,
+    EC_SDK_STATION_CMD_ID_STOP_SETUP_DEV,
+    EC_SDK_STATION_CMD_ID_DEL_DEV,
+    EC_SDK_STATION_CMD_ID_GET_PAIRED_DEV_LIST,
+    EC_SDK_STATION_CMD_ID_SET_PAIRED_DEV_NAME,
+    
+    EC_SDK_STATION_CMD_ID_GET_DEV_INFO = 0x1010,
+    EC_SDK_STATION_CMD_ID_SET_DEV_INFO,
+    EC_SDK_STATION_CMD_ID_CHANGE_PASSWORD,
+    EC_SDK_STATION_CMD_ID_RESTORE_TO_FACTORY,
+    
+    
 };
 
+    
 enum PAYLOAD_TYPE
 {
     PAYLOAD_TYPE_VIDEO_H264,
@@ -121,7 +136,7 @@ typedef enum TAG_ECSUB_RETURN
 
 typedef struct tagDeviceInfo
 {
-    int devType; //0=Camera 1=DoorBell
+    int devType; //0=Camera 1=DoorBell 2=Station
     char uid[32];
     char devName[64];
     char fwVer[64];
@@ -132,7 +147,7 @@ typedef struct tagEC_INIT_INFO
     void(*lpLoginResult)(int handle, int errorCode, int seq, unsigned int notificationToken, unsigned int isCharging, unsigned int batPercent);
     void(*lpCmdResult)(int handle, char* data, int errorCode, int seq);
     void(*lpAudio_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq);
-    void(*lpVideo_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, unsigned int wifiQuality);
+    void(*lpVideo_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, int wifiQuality);
     void(*lpPBAudio_RecvData)(int handle, char *data, int len, int payloadType, long long timestamp, int seq, int pbSessionNo);
     void(*lpPBVideo_RecvData)(int hanlde, char *data, int len, int payloadType, long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, int pbSessionNo);
     void(*lpPBEnd)(int hanlde, int pbSessionNo);
@@ -226,10 +241,34 @@ EASYCAM_API int EC_Detect_Network_Type(const char* uid);
  * eventCh: The event channel returned by login callback function
  * Note: You need contact Linkwil to register your APP on Push server firstly, then you can receive notifications from the remote device
  * */
-EASYCAM_API int EC_Subscribe(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
+EASYCAM_API int EC_Subscribe(const char* uid, const char* appName, const char* agName, const char* phoneToken, const char* devName, unsigned int eventCh);
 EASYCAM_API int EC_UnSubscribe(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
 EASYCAM_API int EC_ResetBadge(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
 EASYCAM_API int EC_ChkSub(const char* uid, const char* appName, const char* agName, const char* phoneToken, unsigned int eventCh);
+    
+ 
+//==============Station==============
+    
+    EASYCAM_API int EC_StationStartConfig(const char* password, int timeZone, const char* bCastAddr);
+    EASYCAM_API int EC_StationStopConfig(void);
+    EASYCAM_API int EC_StationLogin(const char* uid,
+                                    const char* devMacAddr,
+                                    const char* usrName,
+                                    const char* password,
+                                    int seq,
+                                    int needVideo,
+                                    int needAudio,
+                                    int connectType,
+                                    int timeout);
+    EASYCAM_API int EC_StationLogout(int handle);
+    EASYCAM_API int EC_StationSendCommand(int handle, char* command, int seq);
+    EASYCAM_API int EC_StationSendTalkData(int handle,
+                                           const char* devMacAddr,
+                                           char* data,
+                                           int dataLen,
+                                           int payloadType,
+                                           int seq);
+
 
 
 #ifdef __cplusplus

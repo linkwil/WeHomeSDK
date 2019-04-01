@@ -108,7 +108,7 @@ static void OnAudio_RecvData(int handle, char *data, int len, int payloadType,
 }
 
 static void OnVideo_RecvData(int handle, char *data, int len, int payloadType,
-		long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, unsigned int wifiQuality)
+		long long timestamp, int seq, int frameType, int videoWidth, int videoHeight, int wifiQuality)
 {
 	//LOGD("OnVideo_RecvData, handle:%d, len:%d, timestamp:%u", handle, len, timestamp);
 	//LOGD("[%02X][%02X][%02X][%02X][%02X][%02X][%02X][%02X]",
@@ -548,15 +548,16 @@ JNIEXPORT jintArray JNICALL Java_com_linkwil_easycamsdk_EasyCamApi_YUV420P2ARGB8
 JNIEXPORT jint JNICALL
 Java_com_linkwil_easycamsdk_EasyCamApi_subscribeMessage(JNIEnv *env, jobject instance, jstring uid_,
                                                         jstring appName_, jstring agName_,
-                                                        jstring phoneToken_, jint eventCh) {
+                                                        jstring phoneToken_, jstring devName_, jint eventCh) {
     int ret = 0;
 
     const char *uid = (*env)->GetStringUTFChars(env, uid_, 0);
     const char *appName = (*env)->GetStringUTFChars(env, appName_, 0);
     const char *agName = (*env)->GetStringUTFChars(env, agName_, 0);
     const char *phoneToken = (*env)->GetStringUTFChars(env, phoneToken_, 0);
+    const char *devName = (*env)->GetStringUTFChars(env, devName_, 0);
 
-    ret = EC_Subscribe(uid, appName, agName, phoneToken, (unsigned int)eventCh);
+    ret = EC_Subscribe(uid, appName, agName, phoneToken, devName, (unsigned int)eventCh);
     LOGD("EC_Subscribe, ret:%d", ret);
 
     (*env)->ReleaseStringUTFChars(env, uid_, uid);

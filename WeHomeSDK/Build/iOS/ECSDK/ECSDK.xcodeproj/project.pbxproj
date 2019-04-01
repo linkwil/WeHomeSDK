@@ -568,8 +568,8 @@
 			isa = PBXGroup;
 			children = (
 				11C5926720ADAD0E00EA51FD /* CEasyCamClient.h */,
-				11C5926820ADAD0E00EA51FD /* audio_process */,
 				11C5929C20ADAD0E00EA51FD /* CEasyCamClient.cpp */,
+				11C5926820ADAD0E00EA51FD /* audio_process */,
 				11C5929D20ADAD0E00EA51FD /* Discovery.h */,
 				11C5929E20ADAD0E00EA51FD /* adpcm.h */,
 				11C5929F20ADAD0E00EA51FD /* ECLog.h */,

@@ -32,7 +32,10 @@ int getDevList(DeviceInfo* pDevInfo, int devInfoSize);
 // Note: this API works in sync mode
 int startDevSearch(int timeoutMS, char* bCastAddr);
 int stopDevSearch(void);
-
+    
+int startStationConfig(const char* password, int timeZone, const char* bCastAddr);
+int stopStationConfig(void);
+    
 #ifdef __cplusplus
 }
 #endif

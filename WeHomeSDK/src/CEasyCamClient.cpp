@@ -202,6 +202,8 @@ CEasyCamClient::CEasyCamClient(CLIENT_INIT_INFO* init, int sessionHandle, const 
 
 	memset( mUid, 0x00, sizeof(mUid) );
 	strncpy( mUid, devUid, 64 );
+    
+    memset( &mDevMacAddr, 0x00, 16 );
 
 	srand((unsigned)time(NULL));
 
@@ -287,7 +289,7 @@ CEasyCamClient::~CEasyCamClient() {
 	pthread_mutex_destroy( &mTalkDataQueueMutex );
 }
 
-int CEasyCamClient::logIn(const char* uid, const char* usrName, const char* password, const char* broadcastAddr, int seq, int needVideo, int needAudio, int connectType, int timeout)
+int CEasyCamClient::logIn(const char* uid, const char* devMacAddr, const char* usrName, const char* password, const char* broadcastAddr, int seq, int needVideo, int needAudio, int connectType, int timeout)
 {
     strncpy( mUid, uid, 64 );
     strncpy( mUsrAccount, usrName, 64 );
@@ -296,6 +298,12 @@ int CEasyCamClient::logIn(const char* uid, const char* usrName, const char* pass
     strncpy( mBroadcastAddr, broadcastAddr, 64);
     memset(mUsrAccountRsaEncoded, 0, 256);
     memset(mUsrPasswordRsaEncoded, 0, 256);
+    
+    if ( devMacAddr )
+    {
+//        memcpy( mDevMacAddr, devMacAddr, 6 );
+        strncpy( mDevMacAddr, devMacAddr, 16 );
+    }
 
     // generate random aes key for each session
     int getAesKeyRet = lwlaes_genRandomAesKey((unsigned char*)mAesKey);
@@ -1145,7 +1153,7 @@ int CEasyCamClient::sendCommand(char* command, int seq)
     {
         int comLen = strlen(command);
         int cmdLenAligned = LEN_ALIGN(comLen, 16);
-        int encodedLen = cmdLenAligned * 1.5;
+        int encodedLen = cmdLenAligned * 4;
         char *encodedStr = (char*)malloc((size_t)encodedLen);
         if (!encodedStr)
         {
@@ -1606,6 +1614,8 @@ int CEasyCamClient::sendLoginCmd(int sessionHandle)
     
     cJSON_AddNumberToObject(pJsonRoot, "needVideo", mLoginNeedVideo);
     cJSON_AddNumberToObject(pJsonRoot, "needAudio", mLoginNeedAudio);
+    
+    cJSON_AddStringToObject(pJsonRoot, "mac", mDevMacAddr);
     
     jsonStr = cJSON_Print(pJsonRoot);
     cJSON_Minify(jsonStr);

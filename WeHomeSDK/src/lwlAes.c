@@ -114,7 +114,7 @@ int lwlaes_encrypt(unsigned char *aesKey, unsigned char *srcStr, int srcStrLen, 
         return LWLAES_RETURN_FAIL;
     }
 
-    int base64Len = srcStrLen * 1.5;
+    int base64Len = srcStrLen * 4;
     if (*encryptedStrBufLen < base64Len)
     {
         LOGE("lwlaes_encrypt, afterStrBufLen error, return fail");

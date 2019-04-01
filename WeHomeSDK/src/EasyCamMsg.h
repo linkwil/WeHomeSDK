@@ -82,6 +82,19 @@ enum EC_CMD_ID
     // Debug
     EC_CMD_ID_SET_P2P_INFO = 0x600,
     EC_CMD_ID_SET_TIME,
+    
+    //Station cmd
+    EC_STATION_CMD_ID_START_SETUP_DEV = 0x1000, // 基站对设备配网
+    EC_STATION_CMD_ID_STOP_SETUP_DEV,       // 通知基站停止配网
+    EC_STATION_CMD_ID_DEL_DEV,              // 基站删除已经配对的设备
+    EC_STATION_CMD_ID_GET_PAIRED_DEV_LIST, // 获取基站已经配对的设备列表信息
+    EC_STATION_CMD_ID_SET_PAIRED_DEV_NAME, // 设置基站绑定的设备名称
+    
+    EC_STATION_CMD_ID_GET_DEV_INFO = 0x1010,
+    EC_STATION_CMD_ID_SET_DEV_INFO,
+    EC_STATION_CMD_ID_CHANGE_PASSWORD,
+    EC_STATION_CMD_ID_RESTORE_TO_FACTORY,
+    
 };
 
 

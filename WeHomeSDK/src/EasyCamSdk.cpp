@@ -516,7 +516,7 @@ int EC_Login(const char* uid, const char* usrName, const char* password, const c
     
 	pthread_mutex_lock(&sSessionMutex);
 	sSessionList.push_back(session);
-	session.pClient->logIn(uid, usrName, password, broadcastAddr, seq, needVideo, needAudio, connectType, (timeout - 1));
+	session.pClient->logIn(uid, NULL, usrName, password, broadcastAddr, seq, needVideo, needAudio, connectType, (timeout - 1));
 	pthread_mutex_unlock(&sSessionMutex);
 
 	sSessionIndex++;
@@ -683,9 +683,9 @@ int EC_Detect_Network_Type(const char* uid)
     return netInfo.NAT_Type;
 }
 
-int EC_Subscribe(const char* uid, const char* appName,  const char* agName, const char* phoneToken, unsigned int eventCh)
+int EC_Subscribe(const char* uid, const char* appName,  const char* agName, const char* phoneToken, const char* devName, unsigned int eventCh)
 {
-    return LINK_Subscribe(uid, appName, agName, phoneToken, eventCh);
+    return LINK_Subscribe(uid, appName, agName, phoneToken, devName, eventCh);
 }
 
 int EC_UnSubscribe(const char* uid, const char* appName,  const char* agName, const char* phoneToken, unsigned int eventCh)
@@ -703,6 +703,111 @@ int EC_ChkSub(const char* uid, const char* appName, const char* agName, const ch
     return LINK_ChkSubscribe(uid, appName, agName, phoneToken, eventCh);
 }
 
+EASYCAM_API int EC_StationStartConfig(const char* password, int timeZone, const char* bCastAddr)
+{
+    return startStationConfig(password, timeZone, bCastAddr);
+}
+EASYCAM_API int EC_StationStopConfig(void)
+{
+    return stopStationConfig();
+}
+
+/**
+ 基站登录接口
+ 
+ @param uid 基站的UID
+ @param devMacAddr 设备的mac地址，此参数，为NULL，则表示不需要连接某一台设备，只需要连接基站
+ @param usrName 基站用户名
+ @param password 基站密码
+ @param seq seq
+ @param needVideo 是否需要视频
+ @param needAudio 视频需要音频
+ @param connectType 连接方式
+ @param timeout 超时时间
+ @return handle
+ */
+int EC_StationLogin(const char* uid,
+                                const char* devMacAddr,
+                                const char* usrName,
+                                const char* password,
+                                int seq,
+                                int needVideo,
+                                int needAudio,
+                                int connectType,
+                                int timeout)
+{
+    if (!sHasSdkInited)
+    {
+        LOGE("Please init sdk firstly");
+        return -1;
+    }
+    SessionInfo session;
+    session.handle = sSessionIndex;
+    CLIENT_INIT_INFO init;
+    init.lpConnectionBroken = EC_OnConnectionBroken;
+    init.lpLoginResult = EC_OnLoginResult;
+    init.lpCmdResult = EC_OnCommandResult;
+    init.lpAudio_RecvData = EC_Audio_RecvData;
+    init.lpVideo_RecvData = EC_Video_RecvData;
+    init.lpPBAudio_RecvData = EC_PBAudio_RecvData;
+    init.lpPBVideo_RecvData = EC_PBVideo_RecvData;
+    init.lpPBEnd = EC_PBEnd;
+    init.lpFileDownload_RecvData = EC_FileDownload_RecvData;
+    init.lpPIRData_RecvData = EC_PIRData_RecvData;
+    session.pClient = new CEasyCamClient(&init, session.handle, uid);
+    session.refCnt = 1;
+    session.pClient->mIsRsaLogin = 1;
+    
+    pthread_mutex_lock(&sSessionMutex);
+    sSessionList.push_back(session);
+    session.pClient->logIn(uid, devMacAddr, usrName, password, "192.168.1.255", seq, needVideo, needAudio, connectType, (timeout - 1));
+    pthread_mutex_unlock(&sSessionMutex);
+    
+    sSessionIndex++;
+    
+    LOGD("EC_Login, uid:%s, usrName:%s, password:%s, handle:%d", uid, usrName, password, session.handle);
+    
+    return session.handle;
+}
+
+int EC_StationLogout(int handle)
+{
+    if (!sHasSdkInited)
+    {
+        LOGE("Please init sdk firstly");
+        return -1;
+    }
+    
+    LOGD("EC_Logout, handle:%d, session cnt:%d", handle, sSessionList.size());
+    
+    pthread_mutex_lock(&sSessionMutex);
+    std::list<SessionInfo>::iterator it = std::find_if(sSessionList.begin(),
+                                                       sSessionList.end(), CSessionCompare(handle));
+    if (it != sSessionList.end())
+    {
+        if (it->pClient != NULL)
+        {
+            if (it->refCnt > 0)
+            {
+                it->pClient->logOut();
+                it->refCnt--;
+            }
+            else
+            {
+                LOGI("Client ref cnt is 0");
+            }
+        }
+    }
+    else
+    {
+        LOGE("session:%d unexist", handle);
+    }
+    pthread_mutex_unlock(&sSessionMutex);
+    
+    LOGD("EC_Logout complete");
+    
+    return 0;
+}
 
 /*========================================================
    Only used for android JNI

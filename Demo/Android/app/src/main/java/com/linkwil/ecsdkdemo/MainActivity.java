@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        int ret = EasyCamApi.getInstance().subscribeMessage(uid, "WeHome", "DPS", DPS_token, mNotificationEventChannel);
+                        int ret = EasyCamApi.getInstance().subscribeMessage(uid, "WeHome", "DPS", DPS_token, "TestDeviceName", mNotificationEventChannel);
                         if( ret == 0 ){
                             mHandler.sendEmptyMessage(MSG_ID_SUBSCRIBE_MSG_SUCCESS);
                         }else{

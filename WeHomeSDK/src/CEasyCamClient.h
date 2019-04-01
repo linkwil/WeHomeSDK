@@ -73,7 +73,7 @@ public:
 	virtual ~CEasyCamClient();
 
 public:
-	int logIn(const char* uid, const char* usrName, const char* password, const char* broadcastAddr, int seq, int needVideo, int needAudio, int connectType, int timeout);
+	int logIn(const char* uid, const char* devMacAddr, const char* usrName, const char* password, const char* broadcastAddr, int seq, int needVideo, int needAudio, int connectType, int timeout);
 	int logOut(void);
 
 	void notifyStartPlayRecord(void){mNeedWaitPlaybackStartFrame=true;};
@@ -84,7 +84,7 @@ public:
     unsigned int getToken();
     
     int sendLoginCmd(int sessionHandle);
-
+    
 public:
 	void joinThreads(void);
 	void closeConnection(void);
@@ -203,15 +203,13 @@ private:
 	int mLoginNeedVideo;
 	int mLoginNeedAudio;
     int mConnectType;
-    
 	bool mNeedBreakConnect;
 	int mSockHandle;
 	int mSessionHandle;
 	bool mHasBrokenDetected;
-
 	bool mNeedWaitPlaybackStartFrame;
-    
     unsigned int mToken;
+    char mDevMacAddr[16];    //设备mac地址
 
 	CLIENT_INIT_INFO mInitInfo;
 

@@ -211,7 +211,7 @@ public final class EasyCamApi {
 
     public native int [] YUV420P2ARGB8888(byte []buf, int width, int height);
 
-    public native int subscribeMessage(String uid, String appName, String agName, String phoneToken, int eventCh);
+    public native int subscribeMessage(String uid, String appName, String agName, String phoneToken, String devName, int eventCh);
 
     public native int unSubscribe(String uid, String appName, String agName, String phoneToken, int eventCh);
 

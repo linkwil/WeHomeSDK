@@ -41,6 +41,7 @@
 #include "cJSON.h"
 
 #include "platform.h"
+#include "lwlRsa.h"
 
 #define MAX_RECV_BUF_SIZE   4096
 #define MAX_DEV_LIST_NUM    100
@@ -53,6 +54,14 @@ typedef struct tagDiscoveryCmdHead
 	int dataLen;
 	char data[0];
 } DiscoveryCmdHead;
+
+typedef struct tagInitCmdHead
+{
+    char magic[4];
+    int dataLen;
+    char data[0];
+} InitCmdHead;
+
 #pragma pack()
 #else
 typedef struct tagDiscoveryCmdHead
@@ -61,12 +70,25 @@ typedef struct tagDiscoveryCmdHead
 	int dataLen;
 	char data[0];
 }__attribute__((packed)) DiscoveryCmdHead;
+
+
+typedef struct tagInitCmdHead
+{
+    char magic[4];
+    int dataLen;
+    char data[0];
+}__attribute__((packed)) InitCmdHead;
+
 #endif
 
 static int sIsSearchCanceled = 0;
 static char sDiscoveryRespBuf[MAX_RECV_BUF_SIZE];
 static int sRecvLen = 0;
 static DeviceInfo sDevList[MAX_DEV_LIST_NUM];
+
+
+//========== station config ===========
+static int sIsStationConfigCanceled = 0;
 
 static int sendProbe(int sockFd, char* bCastAddr)
 {
@@ -401,5 +423,156 @@ int stopDevSearch(void)
 {
     sIsSearchCanceled = 1;
 
+    return 0;
+}
+
+
+
+
+static int sendStationConfigData(int sockFd, const char*password, int timeZone, const char* bCastAddr)
+{
+    int ret = 0;
+    cJSON * pJsonRoot = NULL;
+    char* jsonStr = NULL;
+    
+    char configDataBuf[256] = {0};
+    char afterEncodedDataBuf[256] = {0};
+    InitCmdHead* pCmdHead = (InitCmdHead*)configDataBuf;
+    
+    //===================================================
+    // magic
+    //===================================================
+    strncpy( (char* )pCmdHead->magic, "EVC_", 4 );
+    
+    pJsonRoot = cJSON_CreateObject();
+    
+    //===================================================
+    // cmdId
+    //===================================================
+    cJSON_AddNumberToObject(pJsonRoot, "cmdId", 0/*STATION_INIT_CMD_INIT*/);
+
+    
+    //===================================================
+    // password
+    //===================================================
+    cJSON_AddStringToObject(pJsonRoot, "passwd", password);
+    
+    //===================================================
+    // timeZone
+    //===================================================
+    cJSON_AddNumberToObject(pJsonRoot, "tz", timeZone);
+    
+    jsonStr = cJSON_Print(pJsonRoot);
+    
+    int afterEncodedDataBufLen = 256;
+    int encRet = lwlrsa_encrypt((unsigned char*)jsonStr, (int)strlen(jsonStr), (unsigned char*)afterEncodedDataBuf, &afterEncodedDataBufLen);
+    if (encRet == LWLRSA_RETURN_FAIL)
+    {
+        return -1;
+    }
+    
+    
+    pCmdHead->dataLen = afterEncodedDataBufLen+1;
+    memcpy( pCmdHead->data, afterEncodedDataBuf, pCmdHead->dataLen );
+    
+    struct sockaddr_in        addr;
+    memset( &addr, 0x00, sizeof(struct sockaddr_in) );
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(12345);
+    addr.sin_addr.s_addr = inet_addr("255.255.255.255");
+    
+    if( (ret = sendto( sockFd, configDataBuf, sizeof(InitCmdHead)+pCmdHead->dataLen,
+                    0, (struct sockaddr *)&addr, sizeof(sockaddr))) < 0 )
+    {
+        LOGE("Send station config fail, ret:%d", ret);
+    }
+    
+    if( (bCastAddr!=NULL) && strlen(bCastAddr) > 0 )
+    {
+        LOGI("Send cast:%s", bCastAddr);
+        memset( &addr, 0x00, sizeof(sockaddr_in) );
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(10000);
+        addr.sin_addr.s_addr = inet_addr(bCastAddr);
+        
+        if( (ret = sendto( sockFd, configDataBuf, sizeof(InitCmdHead)+pCmdHead->dataLen,
+                        0, (struct sockaddr *)&addr, sizeof(sockaddr))) < 0 )
+        {
+            LOGE("Send station config fail, ret:%d", ret);
+        }
+    }
+    
+    LOGD("Send station config success, ret:%d", ret);
+    
+    return 0;
+}
+
+
+
+int startStationConfig(const char* password, int timeZone, const char* bCastAddr)
+{
+    
+    int sockFd = 0;
+    
+    sockFd = socket( AF_INET, SOCK_DGRAM, 0 );
+    if( sockFd <= 0 )
+    {
+        LOGE("create station config socket fail");
+        return -1;
+    }
+    
+    int opt = true;
+    if (setsockopt( sockFd, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt)) != 0)
+    {
+        SOCKET_CLOSE( sockFd );
+        return -1;
+    }
+    
+    struct sockaddr_in sin;
+    memset( &sin, 0x00, sizeof(sockaddr_in) );
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(12345);
+    if ( 0 != bind( sockFd, (struct sockaddr *)&sin, sizeof(sockaddr_in)))
+    {
+        SOCKET_CLOSE( sockFd );
+        return -1;
+    }
+    sIsStationConfigCanceled = 0;
+    while( 1 )
+    {
+        
+        if( sIsStationConfigCanceled )
+        {
+            LOGI("station config has been canceled");
+            break;
+        }
+        
+        LOGI("sendStationConfigData...");
+        if( sendStationConfigData( sockFd, password, timeZone, bCastAddr ) != 0 )
+        {
+            LOGE("sendStationConfigData fail");
+            SOCKET_CLOSE( sockFd );
+            return -1;
+        }
+        
+//        if( recvResponse(sockFd, 1000) != 0 )
+//        {
+//            LOGE("recvResponse fail");
+//            SOCKET_CLOSE( sockFd );
+//            return -1;
+//        }
+        
+        sleep(1);   //1s
+    }
+    
+    SOCKET_CLOSE( sockFd );
+    
+    return 0;
+}
+
+
+int stopStationConfig(void)
+{
+    sIsStationConfigCanceled = 1;
     return 0;
 }
