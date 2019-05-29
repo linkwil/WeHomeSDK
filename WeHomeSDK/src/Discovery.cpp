@@ -349,7 +349,7 @@ int getDevList(DeviceInfo* pDevInfo, int devInfoSize)
 {
     int devCnt = 0;
     int i = 0;
-    for( i = 0; i < MAX_DEV_LIST_NUM; i++ )
+    for( i = 0; i < (MAX_DEV_LIST_NUM>devInfoSize?devInfoSize:MAX_DEV_LIST_NUM); i++ )
     {
         if( strlen(sDevList[i].uid)>0 )
         {
@@ -390,6 +390,8 @@ int startDevSearch(int timeoutMS, char* bCastAddr)
 	}
 
 	memset( &sDevList, 0x00, sizeof(sDevList) );
+
+    sIsSearchCanceled = 0;
 
     int retryCnt = timeoutMS/1000;
     while( retryCnt-- > 0 )
@@ -507,27 +509,31 @@ static int sendStationConfigData(int sockFd, const char*password, int timeZone, 
     return 0;
 }
 
-
-
-int startStationConfig(const char* password, int timeZone, const char* bCastAddr)
+typedef struct tagStationConfigContextInfo
 {
-    
+    char password[64];
+    int timeZoneOffset;
+    char bCastAddr[32];
+}StationConfigContextInfo;
+static void* stationConfigThreadFunc(void* param)
+{
+    StationConfigContextInfo* pContext = (StationConfigContextInfo* )param;
     int sockFd = 0;
-    
+
     sockFd = socket( AF_INET, SOCK_DGRAM, 0 );
     if( sockFd <= 0 )
     {
         LOGE("create station config socket fail");
-        return -1;
+        return NULL;
     }
-    
+
     int opt = true;
     if (setsockopt( sockFd, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt)) != 0)
     {
         SOCKET_CLOSE( sockFd );
-        return -1;
+        return NULL;
     }
-    
+
     struct sockaddr_in sin;
     memset( &sin, 0x00, sizeof(sockaddr_in) );
     sin.sin_family = AF_INET;
@@ -535,44 +541,40 @@ int startStationConfig(const char* password, int timeZone, const char* bCastAddr
     if ( 0 != bind( sockFd, (struct sockaddr *)&sin, sizeof(sockaddr_in)))
     {
         SOCKET_CLOSE( sockFd );
-        return -1;
+        return NULL;
     }
-    sIsStationConfigCanceled = 0;
-    while( 1 )
+
+    while( !sIsStationConfigCanceled )
     {
-        
-        if( sIsStationConfigCanceled )
-        {
-            LOGI("station config has been canceled");
-            break;
-        }
-        
-        LOGI("sendStationConfigData...");
-        if( sendStationConfigData( sockFd, password, timeZone, bCastAddr ) != 0 )
+        if( sendStationConfigData( sockFd, pContext->password, pContext->timeZoneOffset, pContext->bCastAddr ) != 0 )
         {
             LOGE("sendStationConfigData fail");
             SOCKET_CLOSE( sockFd );
-            return -1;
+            return NULL;
         }
-        
-//        if( recvResponse(sockFd, 1000) != 0 )
-//        {
-//            LOGE("recvResponse fail");
-//            SOCKET_CLOSE( sockFd );
-//            return -1;
-//        }
-        
-        sleep(1);   //1s
+
+        usleep(100000);   //100ms
     }
-    
+
     SOCKET_CLOSE( sockFd );
+
+    if( pContext )
+    {
+        delete pContext;
+    }
+
+    return NULL;
+}
+int startStationConfig(const char* password, int timeZone, const char* bCastAddr)
+{
+    sIsStationConfigCanceled = 0;
     
     return 0;
 }
-
 
 int stopStationConfig(void)
 {
     sIsStationConfigCanceled = 1;
     return 0;
 }
+ 

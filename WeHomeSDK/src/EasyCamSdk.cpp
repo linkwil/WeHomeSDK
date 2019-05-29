@@ -581,6 +581,9 @@ int EC_GetDevList(DeviceInfo* pDevInfo, int devInfoSize)
 
 int EC_SendCommand(int handle, char* command, int seq)
 {
+    
+    LOGI("EC_SendCommand enter, handle:%d, command:%s, seq", handle, command, seq);
+
 	if (!sHasSdkInited)
     {
 		LOGE("Please init sdk firstly");
@@ -622,8 +625,14 @@ int EC_SendCommand(int handle, char* command, int seq)
 			{
 				cJSON_Delete(pJson);
 			}
-		}
-	}
+		}else
+        {
+            LOGE("pClient is NULL");
+        }
+	}else
+    {
+        LOGE("it == sSessionList.end()");
+    }
 	pthread_mutex_unlock(&sSessionMutex);
 
 	if (errCode != CMD_EXEC_RESULT_SUCCESS)
@@ -760,7 +769,7 @@ int EC_StationLogin(const char* uid,
     
     pthread_mutex_lock(&sSessionMutex);
     sSessionList.push_back(session);
-    session.pClient->logIn(uid, devMacAddr, usrName, password, "192.168.1.255", seq, needVideo, needAudio, connectType, (timeout - 1));
+    session.pClient->logIn(uid, devMacAddr, usrName, password, "255.255.255.255", seq, needVideo, needAudio, connectType, (timeout - 1));
     pthread_mutex_unlock(&sSessionMutex);
     
     sSessionIndex++;

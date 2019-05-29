@@ -1149,6 +1149,8 @@ int CEasyCamClient::sendCommand(char* command, int seq)
 {
     char* pCmdMsg = NULL;
 
+    LOGE("command:%s, seq:%d", command, seq);
+    
     if (mIsRsaLogin)
     {
         int comLen = strlen(command);
@@ -1186,6 +1188,7 @@ int CEasyCamClient::sendCommand(char* command, int seq)
     }
     else
     {
+        LOGD("is no mIsRsaLogin");
         BUILD_CMD_MSG(pCmdMsg, command, seq);
     }
     
@@ -1211,8 +1214,14 @@ int CEasyCamClient::sendCommand(char* command, int seq)
             //int EC_CMD_ID_START_PLAY_EVENT_RECORD = 0x302;
             //int EC_CMD_ID_START_PLAY_RECORD = 0x303;
             //int EC_CMD_ID_STOP_PLAY_RECORD = 0x304;
-            if( (cmdId == 0x303) || (cmdId == 0x302) ){
+            if( (cmdId == EC_CMD_ID_START_PLAY_RECORD) ||
+               (cmdId == EC_CMD_ID_START_PLAY_EVENT_RECORD) ||
+               (cmdId == EC_STATION_CMD_ID_START_PLAY_EVENT_RECORD) ||
+               (cmdId == EC_STATION_CMD_ID_START_PLAY_RECORD) )
+            {
                 LOGD("Start play cmd, seq:%d", seq);
+
+//                notifyStartPlayRecord();
 
                 if( mHasPBRecvThreadStarted )
                 {
@@ -1229,7 +1238,9 @@ int CEasyCamClient::sendCommand(char* command, int seq)
                 pContextInfo->cmdSeq = seq;
                 pthread_create( &mPBRecvThread, NULL, pbRecvThread, pContextInfo );
                 mHasPBRecvThreadStarted = true;
-            }else if( cmdId == 0x304 ){
+                
+            }else if( cmdId == 0x304 )
+            {
                 LOGD("Stop play cmd");
 
                 if( mHasPBRecvThreadStarted )
@@ -1966,19 +1977,21 @@ int CEasyCamClient::handleMsg(int fd, char* data, int len)
 	else if( pMsgHead->msgId == EC_MSG_ID_PB_DATA )
 	{
 	    FrameHeadInfo* pFrame = (FrameHeadInfo* )pMsgHead->data;
-	    /*LOGD("PB data, len:%d, videoLen:%d, audioLen:%d", len, pFrame->videoLen, pFrame->audioLen);*/
+//        LOGD("PB data, len:%d, videoLen:%d, audioLen:%d, frameType:%d", len, pFrame->videoLen, pFrame->audioLen, pFrame->frameType);
 
 	    if( mNeedWaitPlaybackStartFrame )
 	    {
 	        if( pFrame->frameType == PLAY_RECORD_FRAME_TYPE_START )
 	        {
 	            mNeedWaitPlaybackStartFrame = false;
+                LOGI("get start frame");
 	        }
 	        else
 	        {
 	            LOGD("Wait start frame");
-	            return 0;
 	        }
+            
+            return 0;
 	    }
 
 	    if( pFrame->frameType == PLAY_RECORD_FRAME_TYPE_END )
@@ -2127,7 +2140,7 @@ void* CEasyCamClient::cmdSendThread(void* param)
 
 						if( (ppcsBufSize+remainSize) >= 262144 )//256k
 						{
-							LOGI("PPCS send buffer size > 256K, size:%d", ppcsBufSize);
+							LOGE("PPCS send buffer size > 256K, size:%d", ppcsBufSize);
 							usleep(100000); // 100ms
 							continue;
 						}
@@ -2365,13 +2378,13 @@ void* CEasyCamClient::cmdRecvThread(void* param)
 		{
 			dataSize = 1024;
 			ret = LINK_Read(pThis->mSockHandle, 0, buf, &dataSize, 20); // timeout 20ms
-            //LOGE("CMD PPCS_Read:%d, session handle:%d, channel:0, dataSize:%d",
-            //     ret, pThis->mSockHandle, dataSize);
+//            LOGE("CMD PPCS_Read:%d, session handle:%d, channel:0, dataSize:%d",
+//                 ret, pThis->mSockHandle, dataSize);
 			if( (ret==ERROR_LINK_SUCCESSFUL) || (ret==ERROR_LINK_TIME_OUT) )
 			{
 				if( dataSize > 0 )
 				{
-					//LOGD("Recv data, size:%d", dataSize);
+//                    LOGD("Recv data, size:%d", dataSize);
 					memcpy( cmdRecvBuf+cmdRecvBufSize, buf, dataSize );
 					cmdRecvBufSize += dataSize;
 
@@ -2735,10 +2748,16 @@ void* CEasyCamClient::pbRecvThread(void* param)
 		{
 			dataSize = 20480;
 			ret = LINK_Read(pThis->mSockHandle, 2, buf, &dataSize, 100); // timeout 100ms
+            
+//            LOGE("PB LINK_Read:%d, session handle:%d, channel:0, dataSize:%d",
+//                             ret, pThis->mSockHandle, dataSize);
+            
 			if( (ret==ERROR_LINK_SUCCESSFUL) || (ret==ERROR_LINK_TIME_OUT) )
 			{
 				if( dataSize > 0 )
 				{
+//                    LOGD("PB Recv data, size:%d", dataSize);
+
 					memcpy( cmdRecvBuf+cmdRecvBufSize, buf, dataSize );
 					cmdRecvBufSize += dataSize;
 

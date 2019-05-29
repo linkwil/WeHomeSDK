@@ -249,25 +249,25 @@ EASYCAM_API int EC_ChkSub(const char* uid, const char* appName, const char* agNa
  
 //==============Station==============
     
-    EASYCAM_API int EC_StationStartConfig(const char* password, int timeZone, const char* bCastAddr);
-    EASYCAM_API int EC_StationStopConfig(void);
-    EASYCAM_API int EC_StationLogin(const char* uid,
-                                    const char* devMacAddr,
-                                    const char* usrName,
-                                    const char* password,
-                                    int seq,
-                                    int needVideo,
-                                    int needAudio,
-                                    int connectType,
-                                    int timeout);
-    EASYCAM_API int EC_StationLogout(int handle);
-    EASYCAM_API int EC_StationSendCommand(int handle, char* command, int seq);
-    EASYCAM_API int EC_StationSendTalkData(int handle,
-                                           const char* devMacAddr,
-                                           char* data,
-                                           int dataLen,
-                                           int payloadType,
-                                           int seq);
+EASYCAM_API int EC_StationStartConfig(const char* password, int timeZone, const char* bCastAddr);
+EASYCAM_API int EC_StationStopConfig(void);
+EASYCAM_API int EC_StationLogin(const char* uid,
+                                const char* devMacAddr,
+                                const char* usrName,
+                                const char* password,
+                                int seq,
+                                int needVideo,
+                                int needAudio,
+                                int connectType,
+                                int timeout);
+EASYCAM_API int EC_StationLogout(int handle);
+EASYCAM_API int EC_StationSendCommand(int handle, char* command, int seq);
+EASYCAM_API int EC_StationSendTalkData(int handle,
+                                       const char* devMacAddr,
+                                       char* data,
+                                       int dataLen,
+                                       int payloadType,
+                                       int seq);
 
 
 

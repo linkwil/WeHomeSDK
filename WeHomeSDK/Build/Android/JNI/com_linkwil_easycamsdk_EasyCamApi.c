@@ -629,3 +629,55 @@ Java_com_linkwil_easycamsdk_EasyCamApi_checkSubscribe(JNIEnv *env, jobject insta
 
     return ret;
 }
+
+JNIEXPORT jint JNICALL
+Java_com_linkwil_easycamsdk_EasyCamApi_startStationConfig(JNIEnv *env, jobject instance,
+                                                          jstring password_, jint timeZone,
+                                                          jstring bCastAddr_) {
+    int ret = 0;
+
+    const char *password = (*env)->GetStringUTFChars(env, password_, 0);
+    const char *bCastAddr = (*env)->GetStringUTFChars(env, bCastAddr_, 0);
+
+    ret = EC_StationStartConfig(password, timeZone, bCastAddr);
+
+    (*env)->ReleaseStringUTFChars(env, password_, password);
+    (*env)->ReleaseStringUTFChars(env, bCastAddr_, bCastAddr);
+
+    return ret;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_linkwil_easycamsdk_EasyCamApi_stopStationConfig(JNIEnv *env, jobject instance) {
+
+    return EC_StationStopConfig();
+}
+
+JNIEXPORT jint JNICALL
+Java_com_linkwil_easycamsdk_EasyCamApi_loginStation(JNIEnv *env, jobject instance, jstring uid_,
+                                                    jstring devMacAddr_, jstring usrName_,
+                                                    jstring password_, jint seq, jint needVideo,
+                                                    jint needAudio, jint connectType,
+                                                    jint timeout) {
+    int ret = 0;
+
+    const char *uid = (*env)->GetStringUTFChars(env, uid_, 0);
+    const char *devMacAddr = (*env)->GetStringUTFChars(env, devMacAddr_, 0);
+    const char *usrName = (*env)->GetStringUTFChars(env, usrName_, 0);
+    const char *password = (*env)->GetStringUTFChars(env, password_, 0);
+
+    ret = EC_StationLogin(uid, devMacAddr, usrName, password, seq, needVideo, needAudio, connectType, timeout);
+
+    (*env)->ReleaseStringUTFChars(env, uid_, uid);
+    (*env)->ReleaseStringUTFChars(env, devMacAddr_, devMacAddr);
+    (*env)->ReleaseStringUTFChars(env, usrName_, usrName);
+    (*env)->ReleaseStringUTFChars(env, password_, password);
+
+    return ret;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_linkwil_easycamsdk_EasyCamApi_logoutStation(JNIEnv *env, jobject instance, jint handle) {
+
+    return EC_StationLogout(handle);
+}
