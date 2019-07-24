@@ -34,7 +34,7 @@ int startDevSearch(int timeoutMS, char* bCastAddr);
 int stopDevSearch(void);
     
 int startStationConfig(const char* password, int timeZone, const char* bCastAddr);
-int stopStationConfig(void);
+void stopStationConfig(void);
     
 #ifdef __cplusplus
 }

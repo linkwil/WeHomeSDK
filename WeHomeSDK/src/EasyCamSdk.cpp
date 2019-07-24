@@ -582,7 +582,7 @@ int EC_GetDevList(DeviceInfo* pDevInfo, int devInfoSize)
 int EC_SendCommand(int handle, char* command, int seq)
 {
     
-    LOGI("EC_SendCommand enter, handle:%d, command:%s, seq", handle, command, seq);
+    LOGI("EC_SendCommand enter, handle:%d, command:%s, seq:%d", handle, command, seq);
 
 	if (!sHasSdkInited)
     {
@@ -716,9 +716,9 @@ EASYCAM_API int EC_StationStartConfig(const char* password, int timeZone, const 
 {
     return startStationConfig(password, timeZone, bCastAddr);
 }
-EASYCAM_API int EC_StationStopConfig(void)
+EASYCAM_API void EC_StationStopConfig(void)
 {
-    return stopStationConfig();
+    stopStationConfig();
 }
 
 /**

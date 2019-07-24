@@ -26,7 +26,9 @@
 - (BOOL)LWLAC_SetFormat:(AudioStreamBasicDescription*)format callback:(AudioQueueInputCallback)callback callbackSelf:(id)callbackSelf
 {
     NSError *error = nil;
-    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+//    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+    BOOL ret = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:nil];
+
     if (!ret)
     {
         NSLog(@"setCategory failed!");

@@ -301,7 +301,6 @@ int CEasyCamClient::logIn(const char* uid, const char* devMacAddr, const char* u
     
     if ( devMacAddr )
     {
-//        memcpy( mDevMacAddr, devMacAddr, 6 );
         strncpy( mDevMacAddr, devMacAddr, 16 );
     }
 
@@ -1732,7 +1731,9 @@ void CEasyCamClient::handleCmdLoginResp(char* data, int seq)
 		logInErrorCode = LOGIN_RESULT_AUTH_FAIL;
 	}else if( logInResult == -2 ){
 		logInErrorCode = LOGIN_RESULT_EXCEED_MAX_CONNECTION;
-	}
+    }else if( logInResult == -4){ //station paired device login fail
+        logInErrorCode = LOGIN_RESULT_CONNECT_FAIL;
+    }
 
 	// get notification token
 	unsigned int notificationToken = 0;

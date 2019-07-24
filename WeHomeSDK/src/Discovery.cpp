@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include "ECLog.h"
 #include "cJSON.h"
 
@@ -88,6 +89,8 @@ static DeviceInfo sDevList[MAX_DEV_LIST_NUM];
 
 
 //========== station config ===========
+static pthread_t sStationConfigThread;
+static bool sIsStationConfigRunning = 0;
 static int sIsStationConfigCanceled = 0;
 
 static int sendProbe(int sockFd, char* bCastAddr)
@@ -567,14 +570,32 @@ static void* stationConfigThreadFunc(void* param)
 }
 int startStationConfig(const char* password, int timeZone, const char* bCastAddr)
 {
-    sIsStationConfigCanceled = 0;
-    
-    return 0;
+    if( !sIsStationConfigRunning )
+    {
+        sIsStationConfigCanceled = 0;
+        StationConfigContextInfo *pStationConfigContext = new StationConfigContextInfo();
+        strncpy( pStationConfigContext->password, password, 64 );
+        pStationConfigContext->timeZoneOffset = timeZone;
+        strncpy( pStationConfigContext->bCastAddr, bCastAddr, 32 );
+        pthread_create( &sStationConfigThread, NULL, stationConfigThreadFunc, pStationConfigContext);
+        sIsStationConfigRunning = true;
+
+        return 0;
+    } else{
+        LOGE("Station config is running, please stop it firstly");
+        return -1;
+    }
 }
 
-int stopStationConfig(void)
+void stopStationConfig(void)
 {
     sIsStationConfigCanceled = 1;
-    return 0;
+    if( sIsStationConfigRunning )
+    {
+        LOGI("Start wait station config thread exit");
+        pthread_join(sStationConfigThread, NULL);
+        sIsStationConfigRunning = false;
+        LOGI("Station config thread exited");
+    }
 }
  

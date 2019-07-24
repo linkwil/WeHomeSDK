@@ -89,6 +89,9 @@ enum EC_CMD_ID
     EC_STATION_CMD_ID_DEL_DEV,              // 基站删除已经配对的设备
     EC_STATION_CMD_ID_GET_PAIRED_DEV_LIST, // 获取基站已经配对的设备列表信息
     EC_STATION_CMD_ID_SET_PAIRED_DEV_NAME, // 设置基站绑定的设备名称
+    EC_STATION_CMD_ID_FORMAT_SD_CARD,       //格式化SD卡
+    EC_STATION_CMD_ID_STATION_UPGRADE,        //基站自身升级
+    EC_STATION_CMD_ID_GET_PAIRED_DEV_UPGRADE_INFO,    //获取基站配套设备的升级信息
     
     EC_STATION_CMD_ID_GET_DEV_INFO = 0x1010,
     EC_STATION_CMD_ID_SET_DEV_INFO,

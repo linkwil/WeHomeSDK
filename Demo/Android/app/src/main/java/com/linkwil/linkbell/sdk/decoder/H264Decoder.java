@@ -47,7 +47,7 @@ public class H264Decoder {
     super.finalize();
   }
 
-  private int cdata;
+  private long cdata;
   private native void nativeInit(int colorFormat);
   public native void nativeDestroy();
 

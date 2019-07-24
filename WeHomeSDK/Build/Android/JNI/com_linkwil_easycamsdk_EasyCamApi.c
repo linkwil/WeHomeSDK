@@ -647,10 +647,10 @@ Java_com_linkwil_easycamsdk_EasyCamApi_startStationConfig(JNIEnv *env, jobject i
     return ret;
 }
 
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_linkwil_easycamsdk_EasyCamApi_stopStationConfig(JNIEnv *env, jobject instance) {
 
-    return EC_StationStopConfig();
+    EC_StationStopConfig();
 }
 
 JNIEXPORT jint JNICALL
